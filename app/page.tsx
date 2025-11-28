@@ -5,7 +5,10 @@ export default function Home() {
         <div>
             Krishnam Raastogi
             <br />
-            <Button variant="outline">Sample</Button>
+            <Button variant="primary">Sample</Button>
+            <Button variant="glass" size="xl">
+                Sample
+            </Button>
         </div>
     );
 }

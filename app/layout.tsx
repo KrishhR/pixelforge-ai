@@ -1,21 +1,16 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from 'sonner';
+import FloatingShapes from '@/components/floating-shapes';
+import Header from '@/components/Header';
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'PixelForge AI',
-    description:
-        'A smart AI image editor for creating and customizing photos with ease.',
+    description: 'A smart AI image editor for creating and customizing photos with ease.',
 };
 
 export default function RootLayout({
@@ -24,11 +19,21 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
-                {children}
+        <html lang="en" suppressHydrationWarning>
+            <body className={`${inter.className}`}>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="dark"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <Header />
+                    <main className="bg-slate-900 min-h-[2000px] text-white overflow-hidden">
+                        <FloatingShapes />
+                        <Toaster richColors />
+                        {children}
+                    </main>
+                </ThemeProvider>
             </body>
         </html>
     );

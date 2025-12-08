@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { useStoreUserEffect } from '@/hooks/useStoreUserEffect';
 import { BarLoader } from 'react-spinners';
 import { Authenticated, Unauthenticated } from 'convex/react';
+import { LayoutDashboard } from 'lucide-react';
 
 const Header = () => {
     const path = usePathname();
@@ -27,7 +28,7 @@ const Header = () => {
                         className="min-w-24 object-cover"
                         width={96}
                         height={24}
-                        loading="lazy"
+                        loading="eager"
                     />
                 </Link>
 
@@ -66,6 +67,12 @@ const Header = () => {
                         </SignUpButton>
                     </Unauthenticated>
                     <Authenticated>
+                        <Link href="/dashboard">
+                            <Button variant="glass">
+                                <LayoutDashboard className="w-4 h-4" />
+                                <span className="hidden sm:flex">Dashboard</span>
+                            </Button>
+                        </Link>
                         <UserButton
                             appearance={{
                                 elements: {

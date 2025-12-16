@@ -34,7 +34,7 @@ export default defineSchema({
 
         // Image pipeline - tracks image transformations
         originalImageUrl: v.optional(v.string()), // initial upload image
-        cuurentImageUrl: v.optional(v.string()), // current processed image
+        currentImageUrl: v.optional(v.string()), // current processed image
         thumbnailUrl: v.optional(v.string()), // small preview for dashboard
 
         // ImageKit transformation state

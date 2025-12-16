@@ -58,5 +58,3 @@ export const getCurrentUser = query({
         return user;
     },
 });
-
-// 53 min into the video

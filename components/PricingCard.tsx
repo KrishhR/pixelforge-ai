@@ -26,10 +26,11 @@ const PricingCard = ({
         if (isCurrentPlan) return;
 
         try {
-            // TODO_1 => handle "Upgrade to pro" button when user is not logged in!
+            // TODO_1 => handle "Upgrade to pro" button when user is not logged in! => Need to implement in This function
             // TODO_2 => bit of UI fixes
+            // TODO_3 => upgrading plan does not reflect in convex db,
         } catch (error) {
-            console.log('Checkout Error', error);
+            console.error('Checkout Error', error);
             toast.error('Something went wrong' + error);
         }
     };
@@ -73,7 +74,20 @@ const PricingCard = ({
                 </ul>
 
                 <SignedIn>
-                    <CheckoutButton planId={planId!} planPeriod="month" for="user">
+                    <CheckoutButton
+                        planId={planId!}
+                        planPeriod="month"
+                        for="user"
+                        checkoutProps={{
+                            appearance: {
+                                elements: {
+                                    drawerRoot: {
+                                        zIndex: 20000,
+                                    },
+                                },
+                            },
+                        }}
+                    >
                         <Button
                             variant={featured ? 'primary' : 'glass'}
                             size="xl"

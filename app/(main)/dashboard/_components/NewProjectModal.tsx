@@ -32,10 +32,12 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
 
     const { isFree, canCreateProject } = usePlanAccess();
     const { data: projects } = useConvexQuery(api.projects.getUserProjects);
+    const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
     const { mutate: createProject } = useConvexMutation(api.projects.create);
 
     const currentProjectCount = (Array.isArray(projects) && projects?.length) || 0;
-    const canCreate = canCreateProject(currentProjectCount);
+    const isUnlimited = (currentUser as { unlimitedProjects?: boolean })?.['unlimitedProjects'] === true;
+    const canCreate = isUnlimited || canCreateProject(currentProjectCount);
 
     const handleClose = () => {
         setSelectedFile(null);
@@ -126,7 +128,7 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                             Create New Project
                         </DialogTitle>
 
-                        {isFree && (
+                        {!isUnlimited && isFree && (
                             <Badge variant="secondary" className="bg-slate-700 text-white/70">
                                 {currentProjectCount}/3 Projects
                             </Badge>
@@ -134,7 +136,7 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     </DialogHeader>
 
                     <div className="space-y-6">
-                        {isFree && currentProjectCount >= 2 && (
+                        {!isUnlimited && isFree && currentProjectCount >= 2 && (
                             <Alert className="bg-amber-500/10 border-amber-500/50">
                                 <Crown className="h-5 w-5 text-amber-400" />
                                 <AlertDescription className="text-amber-300/80">
@@ -142,11 +144,10 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                                         {currentProjectCount === 2
                                             ? 'Last Free Project'
                                             : 'Project Limit Reached'}
-
-                                        {currentProjectCount === 2
-                                            ? 'This will be your last free project. Upgrade to Pixelforge Pro for unlimited projects'
-                                            : 'Free plan is limited to 3 projects. Upgrade to Pixelforge Pro to create more projects'}
                                     </div>
+                                    {currentProjectCount === 2
+                                        ? 'This will be your last free project. Upgrade to Pixelforge Pro for unlimited projects.'
+                                        : 'Free plan is limited to 3 projects. Upgrade to Pixelforge Pro to create more projects.'}
                                 </AlertDescription>
                             </Alert>
                         )}

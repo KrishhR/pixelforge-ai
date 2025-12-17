@@ -3,13 +3,16 @@ import type { FunctionReference } from 'convex/server';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-export const useConvexQuery = <T = unknown,>(
+export const useConvexQuery = <
+    TData = unknown,
+    TArgs extends Record<string, any> | undefined = undefined,
+>(
     query: FunctionReference<'query'>,
-    args?: unknown[]
+    args?: TArgs
 ) => {
-    const result = useQuery(query, args) as T;
+    const result = useQuery(query, args);
 
-    const [data, setData] = useState<T | undefined>(undefined);
+    const [data, setData] = useState<TData | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

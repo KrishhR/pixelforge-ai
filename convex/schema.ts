@@ -13,6 +13,8 @@ export default defineSchema({
         // Usage tracking for plan limits
         projectUsed: v.number(), // current project count
         exportsThisMonth: v.number(), // monthly export limit tracking
+        // Allow selected users on the free plan to have unlimited projects
+        unlimitedProjects: v.optional(v.boolean()),
 
         createdAt: v.number(),
         lastActiveAt: v.number(),

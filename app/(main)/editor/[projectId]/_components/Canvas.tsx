@@ -77,7 +77,7 @@ const CanvasEditor = ({ project }: { project: any }) => {
                         width: project.width * viewportScale, // Scaled display width
                         height: project.height * viewportScale, // Scaled display height
                     },
-                    { backstoreOnly: true }
+                    { backstoreOnly: false }
                 );
 
                 // Apply zoom to scale the entire canvas content

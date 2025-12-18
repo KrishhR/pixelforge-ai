@@ -16,7 +16,9 @@ export const create = mutation({
     handler: async (ctx, args) => {
         const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
 
-        if (user.plan === 'free') {
+        // If the user is on the free plan and not explicitly granted unlimited
+        // projects, enforce the 3-project limit.
+        if (user.plan === 'free' && !user.unlimitedProjects) {
             const projectCount = await ctx.db
                 .query('projects')
                 .withIndex('by_user', (q) => q.eq('userId', user._id))

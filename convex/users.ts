@@ -1,3 +1,4 @@
+import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 
 export const store = mutation({
@@ -33,6 +34,7 @@ export const store = mutation({
             plan: 'free', // Default
             projectUsed: 0, // Initialize Usage count
             exportsThisMonth: 0,
+            unlimitedProjects: false,
             createdAt: Date.now(),
             lastActiveAt: Date.now(),
         });
@@ -56,5 +58,21 @@ export const getCurrentUser = query({
         }
 
         return user;
+    },
+});
+
+// This function can be used, when functionality for admin login will be added
+export const setUnlimitedProjects = mutation({
+    args: {
+        userId: v.id('users'),
+        value: v.boolean(),
+    },
+    handler: async (ctx, args) => {
+        // NOTE: protect this in production (only allow from admin/admin token)
+        await ctx.db.patch(args.userId, {
+            unlimitedProjects: args.value,
+            lastActiveAt: Date.now(),
+        });
+        return { success: true };
     },
 });

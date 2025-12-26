@@ -10,15 +10,17 @@ export default function Home() {
         <div className="pt-36">
             {/* hero */}
             <HeroSection />
+
             {/* stats */}
             <StatsSection />
+
             {/* features */}
             <FeatureSection />
+
             {/* pricing */}
             <Pricing />
-            {/* cta */}
-            {/* footer */}
 
+            {/* cta */}
             <section className="text-center py-20">
                 <div className="max-w-4xl mx-auto px-6">
                     <h2 className="text-5xl font-bold mb-6">
@@ -38,6 +40,8 @@ export default function Home() {
                     </Link>
                 </div>
             </section>
+
+            {/* footer */}
         </div>
     );
 }

@@ -1,14 +1,14 @@
 import { Crown, Zap } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Alert, AlertDescription } from './ui/alert';
-import { ToolId } from '@/hooks/usePlanAccess';
+import { ToolIdTypes } from '@/hooks/usePlanAccess';
 import { PricingTable } from '@clerk/nextjs';
 import { Button } from './ui/button';
 
 type UpgradeModalTypes = {
     isOpen: boolean;
     onClose: () => void;
-    restrictedTool: ToolId | string;
+    restrictedTool: ToolIdTypes | string;
     reason: string;
 };
 
@@ -17,8 +17,8 @@ const UpgradeModal = ({ isOpen, onClose, restrictedTool, reason }: UpgradeModalT
         onClose();
     };
 
-    const getToolName = (toolId: ToolId | string): string => {
-        const toolNames: { [key: ToolId | string]: string } = {
+    const getToolName = (toolId: ToolIdTypes | string): string => {
+        const toolNames: { [key: ToolIdTypes | string]: string } = {
             background: 'AI Background Tools',
             ai_extender: 'AI Image Extender',
             ai_edit: 'AI Editor',

@@ -1,6 +1,6 @@
 'use client';
 
-import { ActiveToolTypes, CanvasContext } from '@/context/context';
+import { CanvasContext } from '@/context/context';
 import { api } from '@/convex/_generated/api';
 import { useConvexQuery } from '@/hooks/useConvexQuery';
 import { Loader2, Monitor } from 'lucide-react';
@@ -9,6 +9,9 @@ import { useState } from 'react';
 import { RingLoader } from 'react-spinners';
 import CanvasEditor from './_components/Canvas';
 import { Canvas } from 'fabric';
+import EditorTopbar from './_components/Topbar';
+import EditorSidbar from './_components/Sidebar';
+import { ToolIdTypes } from '@/hooks/usePlanAccess';
 
 type Params = { projectId: string };
 
@@ -23,7 +26,7 @@ const Editor = () => {
     const [canvasEditor, setCanvasEditor] = useState<Canvas | null>(null);
     const [processingMessage, setProcessingMessage] = useState<string | null>(null);
 
-    const [activeTool, setActiveTool] = useState<ActiveToolTypes>('resize');
+    const [activeTool, setActiveTool] = useState<ToolIdTypes>('resize');
 
     if (isLoading) {
         return (
@@ -90,9 +93,11 @@ const Editor = () => {
                         </div>
                     )}
                     {/* Top bar */}
+                    <EditorTopbar project={project} />
 
                     <div className="flex flex-1 overflow-hidden">
                         {/* side bar */}
+                        <EditorSidbar />
 
                         <div className="flex-1 bg-slate-800">
                             <CanvasEditor project={project} />

@@ -77,7 +77,7 @@ const CanvasEditor = ({ project }: { project: any }) => {
                         width: project.width * viewportScale, // Scaled display width
                         height: project.height * viewportScale, // Scaled display height
                     },
-                    { backstoreOnly: true }
+                    { backstoreOnly: false }
                 );
 
                 // Apply zoom to scale the entire canvas content
@@ -239,6 +239,24 @@ const CanvasEditor = ({ project }: { project: any }) => {
 
         return () => window.removeEventListener('resize', handleResize);
     }, [canvasEditor, project]);
+
+    useEffect(() => {
+        if (!canvasEditor) {
+            return;
+        }
+
+        switch (activeTool) {
+            case 'crop':
+                // Crop tool shows Crosshair cursor for precision selection
+                canvasEditor.defaultCursor = 'crosshair';
+                canvasEditor.hoverCursor = 'crosshair';
+                break;
+            default:
+                //  Default tools shows standard cursor
+                canvasEditor.defaultCursor = 'default';
+                canvasEditor.hoverCursor = 'move';
+        }
+    }, [canvasEditor, activeTool]);
 
     return (
         <div

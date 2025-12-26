@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/nextjs';
 
-export type ToolId =
+export type ToolIdTypes =
     | 'resize'
     | 'crop'
     | 'adjust'
@@ -16,7 +16,7 @@ export const usePlanAccess = () => {
     const isPro = has?.({ plan: 'pro_user' }) || false;
     const isFree = !isPro; // If not pro, then free (default)
 
-    const planAccess: Record<ToolId, boolean> = {
+    const planAccess: Record<ToolIdTypes, boolean> = {
         // Free plan tools
         resize: true,
         crop: true,
@@ -30,13 +30,13 @@ export const usePlanAccess = () => {
     };
 
     /** Check access for a specific tool */
-    const hasAccess = (toolId: ToolId): boolean => {
+    const hasAccess = (toolId: ToolIdTypes): boolean => {
         return planAccess[toolId];
     };
 
     /** Get all restricted tools for current plan */
-    const restrictedTools = (): ToolId[] => {
-        return (Object.entries(planAccess) as [ToolId, boolean][])
+    const restrictedTools = (): ToolIdTypes[] => {
+        return (Object.entries(planAccess) as [ToolIdTypes, boolean][])
             .filter(([, allowed]) => !allowed)
             .map(([toolId]) => toolId);
     };

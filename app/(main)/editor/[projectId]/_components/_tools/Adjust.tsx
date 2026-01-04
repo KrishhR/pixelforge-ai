@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { useCanvas } from '@/context/context';
 import { FabricImage, filters } from 'fabric';
 import { Loader2, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type FilterClassTypes =
     | typeof filters.Brightness
@@ -171,10 +171,50 @@ const AdjustControl = () => {
         applyFilters(DEFAULT_VALUES);
     };
 
+    const extractFilterValues = (imageObject: FabricImage) => {
+        if (!imageObject?.filters?.length) return DEFAULT_VALUES;
+
+        const extractedValues = { ...DEFAULT_VALUES };
+
+        imageObject.filters.forEach((filter: any) => {
+            const config = ADJUST_FILTER_CONFIG.find(
+                (c) => c.filterClass.name === filter.constructor.name
+            );
+
+            if (config) {
+                const filterValue = filter[config.valueKey];
+                if (config.key === 'hue') {
+                    extractedValues[config.key] = Math.round(filterValue * (180 / Math.PI));
+                } else {
+                    extractedValues[config.key] = Math.round(filterValue * 100);
+                }
+            }
+        });
+
+        return extractedValues;
+    };
+
+    useEffect(() => {
+        const imageObject = getActiveImage();
+        if (imageObject?.filters) {
+            const existingValues = extractFilterValues(imageObject);
+            setFilterValues(existingValues);
+        }
+    }, [canvasEditor]);
+
     if (!canvasEditor) {
         return (
             <div className="p-4">
                 <p className="text-white/70 text-sm">Load an image to start adjusting</p>
+            </div>
+        );
+    }
+
+    const activeImage = getActiveImage();
+    if (!activeImage) {
+        return (
+            <div className="p-4">
+                <p className="text-white/70 text-sm">Select an image to adjust filters</p>
             </div>
         );
     }
@@ -196,7 +236,7 @@ const AdjustControl = () => {
                 </Button>
             </div>
 
-            {/* filters */}
+            {/* filter controls */}
             {ADJUST_FILTER_CONFIG.map((config: FilterConfigTypes) => (
                 <div key={config.key} className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -226,6 +266,7 @@ const AdjustControl = () => {
                 </div>
             </div>
 
+            {/* Processing Indicator */}
             {isApplying && (
                 <div className="flex items-center justify-center py-2">
                     <Loader2 className="h-4 w-4 animate-spin" />

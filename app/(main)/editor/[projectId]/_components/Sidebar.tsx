@@ -2,9 +2,9 @@ import { useCanvas } from '@/context/context';
 import { ToolIdTypes } from '@/hooks/usePlanAccess';
 import { Crop, Expand, Eye, LucideProps, Maximize2, Palette, Sliders, Text } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
-import CropContent from './tools/Crop';
-import ResizeControl from './tools/Resize';
-import AdjustControl from './tools/Adjust';
+import CropContent from './_tools/Crop';
+import ResizeControl from './_tools/Resize';
+import AdjustControl from './_tools/Adjust';
 
 type ToolsConfigTypes = {
     [key in ToolIdTypes]: {
@@ -74,17 +74,20 @@ const EditorSidbar = ({ project }: { project: any }) => {
                 <p className="text-sm text-white mt-1">{toolDesc}</p>
             </div>
 
-            <div className="flex-1 p-4">{renderToolConfig({ activeTool, project })}</div>
+            {/* Sidebar Content */}
+            <div className="flex-1 p-4 overflow-y-scroll">
+                {renderToolContent({ activeTool, project })}
+            </div>
         </div>
     );
 };
 
-const renderToolConfig = ({ activeTool, project }: { activeTool: ToolIdTypes; project: any }) => {
+const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; project: any }) => {
     switch (activeTool) {
         case 'resize':
             return <ResizeControl project={project} />;
         case 'crop':
-            return <CropContent project={project} />;
+            return <CropContent />;
         case 'adjust':
             return <AdjustControl />;
 

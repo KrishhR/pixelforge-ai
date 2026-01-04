@@ -64,6 +64,7 @@ const Editor = () => {
                 onToolChange: setActiveTool,
             }}
         >
+            {/* Mobile Message - Show on screens smaller than lg (1024px) */}
             <div className="lg:hidden min-h-screen bg-slate-900 flex items-center justify-center p-6">
                 <div className="text-center max-w-md">
                     <Monitor className="h-16 w-16 text-cyan-400 mx-auto mb-6" />
@@ -77,8 +78,9 @@ const Editor = () => {
                 </div>
             </div>
 
+            {/* Desktop Editor - Show on lg screens and above */}
             <div className="hidden lg:block min-h-screen bg-slate-900">
-                <div className="flex flex-col min-h-screen">
+                <div className="flex flex-col h-screen">
                     {processingMessage && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center">
                             <div className="rounded-lg p-6 flex flex-col items-center gap-4">
@@ -97,7 +99,7 @@ const Editor = () => {
 
                     <div className="flex flex-1 overflow-hidden">
                         {/* side bar */}
-                        <EditorSidbar />
+                        <EditorSidbar project={project} />
 
                         <div className="flex-1 bg-slate-800">
                             <CanvasEditor project={project} />

@@ -1,6 +1,6 @@
 'use client';
 
-import { ActiveToolTypes, CanvasContext } from '@/context/context';
+import { CanvasContext } from '@/context/context';
 import { api } from '@/convex/_generated/api';
 import { useConvexQuery } from '@/hooks/useConvexQuery';
 import { Loader2, Monitor } from 'lucide-react';
@@ -9,6 +9,9 @@ import { useState } from 'react';
 import { RingLoader } from 'react-spinners';
 import CanvasEditor from './_components/Canvas';
 import { Canvas } from 'fabric';
+import EditorTopbar from './_components/Topbar';
+import EditorSidbar from './_components/Sidebar';
+import { ToolIdTypes } from '@/hooks/usePlanAccess';
 
 type Params = { projectId: string };
 
@@ -23,7 +26,7 @@ const Editor = () => {
     const [canvasEditor, setCanvasEditor] = useState<Canvas | null>(null);
     const [processingMessage, setProcessingMessage] = useState<string | null>(null);
 
-    const [activeTool, setActiveTool] = useState<ActiveToolTypes>('resize');
+    const [activeTool, setActiveTool] = useState<ToolIdTypes>('resize');
 
     if (isLoading) {
         return (
@@ -61,6 +64,7 @@ const Editor = () => {
                 onToolChange: setActiveTool,
             }}
         >
+            {/* Mobile Message - Show on screens smaller than lg (1024px) */}
             <div className="lg:hidden min-h-screen bg-slate-900 flex items-center justify-center p-6">
                 <div className="text-center max-w-md">
                     <Monitor className="h-16 w-16 text-cyan-400 mx-auto mb-6" />
@@ -74,8 +78,9 @@ const Editor = () => {
                 </div>
             </div>
 
+            {/* Desktop Editor - Show on lg screens and above */}
             <div className="hidden lg:block min-h-screen bg-slate-900">
-                <div className="flex flex-col min-h-screen">
+                <div className="flex flex-col h-screen">
                     {processingMessage && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center">
                             <div className="rounded-lg p-6 flex flex-col items-center gap-4">
@@ -90,9 +95,11 @@ const Editor = () => {
                         </div>
                     )}
                     {/* Top bar */}
+                    <EditorTopbar project={project} />
 
                     <div className="flex flex-1 overflow-hidden">
                         {/* side bar */}
+                        <EditorSidbar project={project} />
 
                         <div className="flex-1 bg-slate-800">
                             <CanvasEditor project={project} />

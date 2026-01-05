@@ -48,7 +48,7 @@ export const useConvexMutation = <T,>(mutation: FunctionReference<'mutation'>) =
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const mutate = async (args: unknown) => {
+    const mutate = async (args: any) => {
         setIsLoading(true);
         setError(null);
 

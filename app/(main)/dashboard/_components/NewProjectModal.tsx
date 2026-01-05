@@ -142,11 +142,10 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                                         {currentProjectCount === 2
                                             ? 'Last Free Project'
                                             : 'Project Limit Reached'}
-
-                                        {currentProjectCount === 2
-                                            ? 'This will be your last free project. Upgrade to Pixelforge Pro for unlimited projects'
-                                            : 'Free plan is limited to 3 projects. Upgrade to Pixelforge Pro to create more projects'}
                                     </div>
+                                    {currentProjectCount === 2
+                                        ? 'This will be your last free project. Upgrade to Pixelforge Pro for unlimited projects'
+                                        : 'Free plan is limited to 3 projects. Upgrade to Pixelforge Pro to create more projects'}
                                 </AlertDescription>
                             </Alert>
                         )}

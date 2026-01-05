@@ -1,15 +1,14 @@
+import { ToolIdTypes } from '@/hooks/usePlanAccess';
 import { Canvas } from 'fabric';
 import { createContext, useContext } from 'react';
-
-export type ActiveToolTypes = 'resize';
 
 export type CanvasContextTypes = {
     canvasEditor: Canvas | null;
     setCanvasEditor: React.Dispatch<React.SetStateAction<Canvas | null>>;
     processingMessage: string | null;
     setProcessingMessage: React.Dispatch<React.SetStateAction<string | null>>;
-    activeTool: string;
-    onToolChange: React.Dispatch<React.SetStateAction<ActiveToolTypes>>;
+    activeTool: ToolIdTypes;
+    onToolChange: React.Dispatch<React.SetStateAction<ToolIdTypes>>;
 };
 
 export const CanvasContext = createContext<CanvasContextTypes | null>(null);

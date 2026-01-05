@@ -5,15 +5,7 @@ import { api } from '@/convex/_generated/api';
 import { useConvexMutation } from '@/hooks/useConvexQuery';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Canvas, FabricImage } from 'fabric';
-// interface Project {
-//     _id: string;
-//     width: number;
-//     height: number;
-//     currentImageUrl?: string;
-//     originalImageUrl?: string;
-//     canvasState?: string | Record<string, any>;
-// }
+import { Canvas, FabricImage, Point } from 'fabric';
 
 interface CanvasEditorProps {
     project: any;
@@ -134,20 +126,26 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
                         scaleX = scaleY;
                     }
 
+                    // Set scale first, BEFORE setting position
                     fabricImage.set({
-                        left: project.width / 2, // Center horizontally
-                        top: project.height / 2, // Center vertically
-                        originX: 'center', // Transform origin at the center
-                        originY: 'center', // Transform origin at the center
-                        scaleX, // Horizontal scale factor
-                        scaleY, // Vertical scale factor
-                        selectable: true, // Allow user to select/move image
-                        evented: true, // Enable mouse/touch events
+                        scaleX,
+                        scaleY,
+                        selectable: true,
+                        evented: true,
                     });
 
-                    // Add image to canvas and ensure it's centered
+                    // Add to canvas first
                     canvas.add(fabricImage);
-                    canvas.centerObject(fabricImage);
+
+                    // Now center the object - this will properly account for the scaled dimensions
+                    fabricImage.setPositionByOrigin(
+                        new Point(project.width / 2, project.height / 2),
+                        'center',
+                        'center'
+                    );
+
+                    canvas.setActiveObject(fabricImage);
+                    canvas.requestRenderAll();
                 } catch (error) {
                     console.error('Error loading project image:', error);
                 }
@@ -204,7 +202,6 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
 
     // Auto-save canvas state with debouncing
     const saveCanvasState = async () => {
-        console.log('save fn');
         if (!canvasEditor || !project) return;
 
         try {
@@ -231,7 +228,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 saveCanvasState();
-            }, 3000);
+            }, 2000);
         };
 
         // Listen for canvas modification events

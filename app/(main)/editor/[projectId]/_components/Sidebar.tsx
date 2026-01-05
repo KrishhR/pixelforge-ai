@@ -86,8 +86,8 @@ const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; p
     switch (activeTool) {
         case 'resize':
             return <ResizeControl project={project} />;
-        case 'crop':
-            return <CropContent />;
+        // case 'crop':
+        //     return <CropContent />;
         case 'adjust':
             return <AdjustControl />;
 

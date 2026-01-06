@@ -5,7 +5,7 @@ import { api } from '@/convex/_generated/api';
 import { useConvexQuery } from '@/hooks/useConvexQuery';
 import { Loader2, Monitor } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { RingLoader } from 'react-spinners';
 import CanvasEditor from './_components/Canvas';
 import { Canvas } from 'fabric';
@@ -25,8 +25,8 @@ const Editor = () => {
 
     const [canvasEditor, setCanvasEditor] = useState<Canvas | null>(null);
     const [processingMessage, setProcessingMessage] = useState<string | null>(null);
-
     const [activeTool, setActiveTool] = useState<ToolIdTypes>('resize');
+    const isCroppingRef = useRef<boolean>(false);
 
     if (isLoading) {
         return (
@@ -62,6 +62,7 @@ const Editor = () => {
                 setProcessingMessage,
                 activeTool,
                 onToolChange: setActiveTool,
+                isCroppingRef,
             }}
         >
             {/* Mobile Message - Show on screens smaller than lg (1024px) */}

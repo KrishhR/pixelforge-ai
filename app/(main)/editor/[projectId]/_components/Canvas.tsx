@@ -19,7 +19,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
     const canvasInstanceRef = useRef<Canvas | null>(null);
     const initializingRef = useRef(false);
 
-    const { canvasEditor, setCanvasEditor, activeTool, onToolChange } = useCanvas();
+    const { canvasEditor, setCanvasEditor, activeTool, onToolChange, isCroppingRef } = useCanvas();
 
     const { mutate: updateProject } = useConvexMutation(api.projects.updateProject);
 
@@ -225,6 +225,8 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
 
         // Debounced save function - waits 2 seconds after last change
         const handleCanvasChange = () => {
+            if (isCroppingRef.current) return;
+
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 saveCanvasState();

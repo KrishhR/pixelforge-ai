@@ -9,6 +9,7 @@ export type CanvasContextTypes = {
     setProcessingMessage: React.Dispatch<React.SetStateAction<string | null>>;
     activeTool: ToolIdTypes;
     onToolChange: React.Dispatch<React.SetStateAction<ToolIdTypes>>;
+    isCroppingRef: { current: boolean };
 };
 
 export const CanvasContext = createContext<CanvasContextTypes | null>(null);

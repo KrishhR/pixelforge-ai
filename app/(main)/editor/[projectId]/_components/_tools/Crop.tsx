@@ -14,7 +14,7 @@ import {
     Square,
     X,
 } from 'lucide-react';
-import { ForwardRefExoticComponent, RefAttributes, useEffect, useRef, useState } from 'react';
+import { ForwardRefExoticComponent, RefAttributes, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type TypeCropAspectRatio = {
@@ -69,23 +69,26 @@ const CROP_ASPECT_RATIOS: TypeCropAspectRatio[] = [
 ];
 
 const CropContent = () => {
-    const { canvasEditor, activeTool } = useCanvas();
+    const { canvasEditor, activeTool, isCroppingRef } = useCanvas();
 
     const [isCropMode, setIsCropMode] = useState<boolean>(false); // whether crop mode is active or not
-    const [selectedImage, setSelectedImage] = useState<FabricImage | null>(null); // The image being cropped
     const [selectedRatio, setSelectedRatio] = useState<number | null>(null); // Currently selected aspect ratio
-    const [cropRect, setCropRect] = useState<Rect | null>(null); // The blue crop rectangle overlay
     const [originalProps, setOriginalProps] = useState<ImagePropsTypes | null>(null); // store original image properties for restoration
+
+    const getCropRect = (): Rect | null => {
+        return canvasEditor
+            ?.getObjects()
+            .find((o) => (o as any).objectId === 'crop-rect') as Rect | null;
+    };
 
     // Get the currently selected or main image
     const getActiveImage = (): FabricImage | null => {
         if (!canvasEditor) return null;
-        const activeObject = canvasEditor.getActiveObject();
-
-        if (activeObject instanceof FabricImage) return activeObject;
-
         const objects = canvasEditor.getObjects();
-        const imgObj = objects.find((obj) => obj instanceof FabricImage);
+
+        const imgObj = objects.find((obj) => (obj as any).type === 'image') as
+            | FabricImage
+            | undefined;
         return imgObj instanceof FabricImage ? imgObj : null;
     };
 
@@ -93,7 +96,9 @@ const CropContent = () => {
         if (!canvasEditor) return;
 
         const objects = canvasEditor.getObjects();
-        const rectsToRemove = objects.filter((obj) => obj.type === 'rect');
+        const rectsToRemove = objects.filter(
+            (obj) => (obj as any).objectId === 'crop-rect' || (obj as any).type === 'rect'
+        );
 
         rectsToRemove.forEach((rect) => {
             canvasEditor.remove(rect);
@@ -118,7 +123,7 @@ const CropContent = () => {
             strokeDashArray: [5, 5], // Dashed line effect
             selectable: true, // User can select and resize
             evented: true,
-            name: 'cropRect', // Indentifier for this rectangle
+            objectId: 'crop-rect', // Indentifier for this rectangle
 
             // Visual styling for crop handles
             cornerColor: '#00bcd4', // Cyan resize handles
@@ -131,46 +136,23 @@ const CropContent = () => {
             isCropRectangle: true,
         });
 
-        // Handle scaling with aspect ratio constraint
-        const scalingHandler = () => {
-            if (
-                selectedRatio &&
-                selectedRatio !== null &&
-                cropRectangle.width &&
-                cropRectangle.height
-            ) {
-                const currentScaleX = cropRectangle.scaleX || 1;
-                const currentScaleY = cropRectangle.scaleY || 1;
-
-                const currentRatio =
-                    (cropRectangle.width * currentScaleX) / (cropRectangle.height * currentScaleY);
-
-                // Only adjust if ratio differs significantly
-                if (Math.abs(currentRatio - selectedRatio) > 0.01) {
-                    const newHeight =
-                        (cropRectangle.width * currentScaleX) / selectedRatio / currentScaleY;
-                    cropRectangle.set({ height: newHeight });
-                    cropRectangle.setCoords();
-                }
-            }
-
-            canvasEditor?.requestRenderAll();
-        };
-
-        cropRectangle.on('scaling', scalingHandler);
-
         canvasEditor.add(cropRectangle);
         canvasEditor.setActiveObject(cropRectangle);
-        setCropRect(cropRectangle);
     };
 
     // Initialize crop mode
-    const initializeCropMode = (image: FabricImage) => {
-        if (!image || isCropMode || !canvasEditor) return;
+    const initializeCropMode = (image: FabricImage | null) => {
+        if (!canvasEditor || isCropMode) return;
 
+        if (!image) {
+            toast.error('Main image not loaded yet.');
+            return;
+        }
+
+        // Remove any existing crop rectangles
         removeAllCropRectangles();
 
-        // Store original image properties
+        // Store original image props for restore
         const originalImage: ImagePropsTypes = {
             left: image.left ?? 0,
             top: image.top ?? 0,
@@ -184,13 +166,15 @@ const CropContent = () => {
         };
 
         setOriginalProps(originalImage);
-        setSelectedImage(image);
         setIsCropMode(true);
 
-        // Make image non-interactive during crop
+        // Flag canvas to block autosave
+        isCroppingRef.current = true;
+
+        // Lock image interaction during crop
         image.set({
-            evented: false,
             selectable: false,
+            evented: false,
         });
 
         createCropRectangle(image);
@@ -199,32 +183,44 @@ const CropContent = () => {
 
     // Exit crop mode and restore original state
     const exitCropMode = () => {
-        if (!isCropMode) return;
+        if (!canvasEditor) return;
 
-        removeAllCropRectangles();
-        setCropRect(null);
+        // Remove crop rectangle
+        const cropRect = canvasEditor.getObjects().find((o) => (o as any).objectId === 'crop-rect');
 
-        // Restore original image properties
-        if (selectedImage && originalProps) {
-            selectedImage.set({
-                selectable: originalProps.selectable,
-                evented: originalProps.evented,
+        // remove any unnecessory previously created rectangles
+        const previousRects = canvasEditor.getObjects().find((o) => (o as any).type === 'rect');
+        if (previousRects) canvasEditor.remove(previousRects);
+
+        if (cropRect) {
+            canvasEditor.remove(cropRect);
+        }
+
+        // Restore image properties
+        const image = getActiveImage();
+
+        if (image && originalProps) {
+            image.set({
                 left: originalProps.left,
                 top: originalProps.top,
                 scaleX: originalProps.scaleX,
                 scaleY: originalProps.scaleY,
                 angle: originalProps.angle,
+                selectable: originalProps.selectable,
+                evented: originalProps.evented,
             });
 
-            canvasEditor?.setActiveObject(selectedImage);
+            canvasEditor.setActiveObject(image);
         }
 
+        // Clear crop state
         setIsCropMode(false);
         setOriginalProps(null);
-        setSelectedImage(null);
         setSelectedRatio(null);
 
-        canvasEditor?.requestRenderAll();
+        // Allow autosave again
+        isCroppingRef.current = false;
+        canvasEditor.requestRenderAll();
     };
 
     // Handle tool activation/deactivation
@@ -237,7 +233,7 @@ const CropContent = () => {
     // Cleanup when component unmounts
     useEffect(() => {
         return () => {
-            if (isCropMode) {
+            if (!isCropMode) {
                 exitCropMode();
             }
         };
@@ -245,9 +241,10 @@ const CropContent = () => {
 
     // Apply aspect ratio constraint to crop rectangle
     const applyAspectRatio = (ratio: number | null) => {
-        setSelectedRatio(ratio);
+        const rect = getCropRect();
+        if (!rect || !canvasEditor) return;
 
-        if (!cropRect || !canvasEditor) return;
+        setSelectedRatio(ratio);
 
         // Freeform - no constraint
         if (ratio === null) {
@@ -255,24 +252,33 @@ const CropContent = () => {
         }
 
         // Calculate new dimensions maintaining aspect ratio
-        const currentScaleX = cropRect.scaleX || 1;
-        const currentScaleY = cropRect.scaleY || 1;
-        const currentWidth = (cropRect.width || 0) * currentScaleX;
-        const newHeight = currentWidth / ratio;
+        const width = rect.getScaledWidth();
+        const height = width / ratio;
 
-        cropRect.set({
-            height: newHeight / currentScaleY,
-            scaleY: currentScaleX,
+        rect.set({
+            scaleX: 1,
+            scaleY: 1,
+            width,
+            height,
         });
 
-        cropRect.setCoords();
+        rect.setCoords();
         canvasEditor.requestRenderAll();
     };
 
     // Apply the crop operation
     const applyCrop = async () => {
+        const selectedImage = getActiveImage();
+        const cropRect = getCropRect();
+
         if (!selectedImage || !cropRect || !canvasEditor) {
             toast.error('Image or crop area not found');
+            return;
+        }
+
+        const element = selectedImage.getElement();
+        if (!element) {
+            toast.error('Image not ready yet');
             return;
         }
 
@@ -293,9 +299,9 @@ const CropContent = () => {
             const actualCropWidth = cropWidth / imageScaleX;
             const actualCropHeight = cropHeight / imageScaleY;
 
-            const croppedImage = new FabricImage(selectedImage.getElement(), {
-                left: cropBounds.left + cropBounds.width / 2,
-                top: cropBounds.top + cropBounds.height / 2,
+            const croppedImage = new FabricImage(element, {
+                left: canvasEditor.getWidth()! / 2,
+                top: canvasEditor.getHeight()! / 2,
 
                 originX: 'center',
                 originY: 'center',
@@ -317,6 +323,7 @@ const CropContent = () => {
             canvasEditor.setActiveObject(croppedImage);
             canvasEditor.requestRenderAll();
 
+            toast.success('Image cropped successfully!');
             // Exit crop mode
             exitCropMode();
         } catch (error) {
@@ -326,6 +333,8 @@ const CropContent = () => {
         }
     };
 
+    const activeImage = getActiveImage();
+
     if (!canvasEditor) {
         return (
             <div className="p-4">
@@ -333,8 +342,6 @@ const CropContent = () => {
             </div>
         );
     }
-
-    const activeImage = getActiveImage();
 
     return (
         <div className="space-y-6">

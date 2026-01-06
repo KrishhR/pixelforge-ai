@@ -65,7 +65,7 @@ const EditorSidbar = ({ project }: { project: any }) => {
     const toolDesc = toolConfig.description;
 
     return (
-        <div className="min-w-96 border-r flex flex-col">
+        <div className="w-100 border-r flex flex-col">
             <div className="p-4 border-b">
                 <div className="flex items-center gap-3">
                     <Icon className="h-5 w-5 text-white" />
@@ -86,8 +86,8 @@ const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; p
     switch (activeTool) {
         case 'resize':
             return <ResizeControl project={project} />;
-        // case 'crop':
-        //     return <CropContent />;
+        case 'crop':
+            return <CropContent />;
         case 'adjust':
             return <AdjustControl />;
 

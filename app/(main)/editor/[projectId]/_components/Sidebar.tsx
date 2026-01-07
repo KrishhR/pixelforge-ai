@@ -65,7 +65,7 @@ const EditorSidbar = ({ project }: { project: any }) => {
     const toolDesc = toolConfig.description;
 
     return (
-        <div className="w-100 border-r flex flex-col">
+        <div className="min-w-96 max-w-100 border-r flex flex-col">
             <div className="p-4 border-b">
                 <div className="flex items-center gap-3">
                     <Icon className="h-5 w-5 text-white" />

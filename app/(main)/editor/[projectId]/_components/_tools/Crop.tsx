@@ -268,21 +268,21 @@ const CropContent = () => {
 
     // Apply the crop operation
     const applyCrop = async () => {
-        const selectedImage = getActiveImage();
-        const cropRect = getCropRect();
-
-        if (!selectedImage || !cropRect || !canvasEditor) {
-            toast.error('Image or crop area not found');
-            return;
-        }
-
-        const element = selectedImage.getElement();
-        if (!element) {
-            toast.error('Image not ready yet');
-            return;
-        }
-
         try {
+            const selectedImage = getActiveImage();
+            const cropRect = getCropRect();
+
+            if (!selectedImage || !cropRect || !canvasEditor) {
+                toast.error('Image or crop area not found');
+                return;
+            }
+
+            const element = selectedImage.getElement();
+            if (!element) {
+                toast.error('Image not ready yet');
+                return;
+            }
+
             const cropBounds = cropRect.getBoundingRect();
             const imageBounds = selectedImage.getBoundingRect();
 
@@ -291,6 +291,7 @@ const CropContent = () => {
             const cropWidth = Math.min(cropBounds.width, imageBounds.width - cropX);
             const cropHeight = Math.min(cropBounds.height, imageBounds.height - cropY);
 
+            // Convert to image coordinate system (accounting for image scaling)
             const imageScaleX = selectedImage.scaleX || 1;
             const imageScaleY = selectedImage.scaleY || 1;
 
@@ -300,13 +301,16 @@ const CropContent = () => {
             const actualCropHeight = cropHeight / imageScaleY;
 
             const croppedImage = new FabricImage(element, {
-                left: canvasEditor.getWidth()! / 2,
-                top: canvasEditor.getHeight()! / 2,
+                left: selectedImage.left,
+                top: selectedImage.top,
 
-                originX: 'center',
-                originY: 'center',
+                originX: selectedImage.originX,
+                originY: selectedImage.originY,
                 selectable: true,
                 evented: true,
+                angle: selectedImage.angle,
+                flipX: selectedImage.flipX,
+                flipY: selectedImage.flipY,
 
                 // APPLY Crop properties with Fabric Js properties
                 cropX: actualCropX,

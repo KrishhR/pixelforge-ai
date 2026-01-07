@@ -54,7 +54,7 @@ export const usePlanAccess = () => {
     };
 
     return {
-        userPlan: isPro ? 'pro_user' : ('free_user' as UserPlan),
+        userPlan: isPro ? 'pro' : ('free_user' as UserPlan),
         isPro,
         isFree,
         planAccess,

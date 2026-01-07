@@ -30,7 +30,7 @@ export const store = mutation({
             tokenIdentifier: identity.tokenIdentifier,
             email: identity.email ?? '',
             imageUrl: identity.pictureUrl,
-            plan: 'free', // Default
+            plan: 'free_user', // Default
             projectUsed: 0, // Initialize Usage count
             exportsThisMonth: 0,
             createdAt: Date.now(),

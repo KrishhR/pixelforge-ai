@@ -8,7 +8,7 @@ export default defineSchema({
         tokenIdentifier: v.string(),
         imageUrl: v.optional(v.string()),
 
-        plan: v.union(v.literal('free'), v.literal('pro')),
+        plan: v.union(v.literal('free_user'), v.literal('pro_user')),
 
         // Usage tracking for plan limits
         projectUsed: v.number(), // current project count

@@ -16,7 +16,7 @@ export const create = mutation({
     handler: async (ctx, args) => {
         const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
 
-        if (user.plan === 'free') {
+        if (user.plan === 'free_user') {
             const projectCount = await ctx.db
                 .query('projects')
                 .withIndex('by_user', (q) => q.eq('userId', user._id))
@@ -126,7 +126,7 @@ export const updateProject = mutation({
         currentImageUrl: v.optional(v.string()),
         thumbnailUrl: v.optional(v.string()),
         activeTransformations: v.optional(v.string()),
-        backgroundRemoved: v.optional(v.boolean()),
+        isBackgroundRemoved: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
@@ -154,8 +154,8 @@ export const updateProject = mutation({
         if (args.activeTransformations !== undefined)
             updatedData['activeTransformations'] = args.activeTransformations;
 
-        if (args.backgroundRemoved !== undefined)
-            updatedData['backgroundRemoved'] = args.backgroundRemoved;
+        if (args.isBackgroundRemoved !== undefined)
+            updatedData['isBackgroundRemoved'] = args.isBackgroundRemoved;
 
         await ctx.db.patch(args.projectId, updatedData);
 

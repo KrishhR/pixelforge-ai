@@ -8,11 +8,13 @@ import { useState } from 'react';
 import { BarLoader } from 'react-spinners';
 import NewProjectModal from './_components/NewProjectModal';
 import ProjectGrid from './_components/ProjectGrid';
+import useSyncUserPlan from '@/hooks/useSyncUserPlan';
 
 const Dashboard = () => {
     const { data: projects, isLoading, error } = useConvexQuery(api.projects.getUserProjects);
 
     const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+    useSyncUserPlan();
 
     return (
         <div className="min-h-screen pt-32 pb-16">

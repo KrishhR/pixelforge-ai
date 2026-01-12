@@ -12,6 +12,7 @@ import { Canvas } from 'fabric';
 import EditorTopbar from './_components/Topbar';
 import EditorSidbar from './_components/Sidebar';
 import { ToolIdTypes } from '@/hooks/usePlanAccess';
+import useSyncUserPlan from '@/hooks/useSyncUserPlan';
 
 type Params = { projectId: string };
 
@@ -27,6 +28,8 @@ const Editor = () => {
     const [processingMessage, setProcessingMessage] = useState<string | null>(null);
     const [activeTool, setActiveTool] = useState<ToolIdTypes>('resize');
     const isCroppingRef = useRef<boolean>(false);
+
+    useSyncUserPlan();
 
     if (isLoading) {
         return (

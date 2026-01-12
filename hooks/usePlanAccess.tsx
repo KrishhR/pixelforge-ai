@@ -8,7 +8,7 @@ export type ToolIdTypes =
     | 'background'
     | 'ai_extender'
     | 'ai_edit';
-export type UserPlan = 'free_user' | 'pro_user';
+export type UserPlanType = 'free_user' | 'pro_user';
 
 export const usePlanAccess = () => {
     const { has } = useAuth();
@@ -54,7 +54,7 @@ export const usePlanAccess = () => {
     };
 
     return {
-        userPlan: isPro ? 'pro' : ('free_user' as UserPlan),
+        userPlan: isPro ? 'pro' : ('free_user' as UserPlanType),
         isPro,
         isFree,
         planAccess,

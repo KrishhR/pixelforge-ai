@@ -5,6 +5,7 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 import CropContent from './_tools/Crop';
 import ResizeControl from './_tools/Resize';
 import AdjustControl from './_tools/Adjust';
+import BackgroundControls from './_tools/AiBackground';
 
 type ToolsConfigTypes = {
     [key in ToolIdTypes]: {
@@ -90,6 +91,8 @@ const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; p
             return <CropContent />;
         case 'adjust':
             return <AdjustControl />;
+        case 'background':
+            return <BackgroundControls project={project} />;
 
         default:
             return <div className="text-white">Select a tool to get started</div>;

@@ -1,7 +1,6 @@
 import { api } from '@/convex/_generated/api';
-import { useConvexQuery } from './useConvexQuery';
+import { useConvexMutation, useConvexQuery } from './useConvexQuery';
 import { usePlanAccess, UserPlanType } from './usePlanAccess';
-import { useMutation } from 'convex/react';
 import { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 
@@ -10,8 +9,9 @@ function useSyncUserPlan() {
     const { data: currentUser } = useConvexQuery(api.users.getCurrentUser) as {
         data: { plan: UserPlanType } | null;
     };
-    const updateUserPlan = useMutation(api.users.updateUserPlan);
+    const { mutate: updateUserPlan } = useConvexMutation(api.users.updateUserPlan);
 
+    // current plan comes from clerk's current plan
     const currentPlan = useMemo<UserPlanType | undefined>(() => {
         if (isFree) return 'free_user';
         if (isPro) return 'pro_user';

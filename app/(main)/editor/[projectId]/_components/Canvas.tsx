@@ -208,6 +208,11 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
             // Export canvas to JSON format (includes all objects and properties)
             const canvasJSON = canvasEditor.toJSON();
 
+            // Check if canvas state has actually changed
+            if (JSON.stringify(canvasJSON) === JSON.stringify(project.canvasState)) {
+                return; // No changes, skip save
+            }
+
             // Save to database
             await updateProject({
                 projectId: project._id,
@@ -291,24 +296,24 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
     }, [canvasEditor, activeTool]);
 
     // Handle automatic tab switching when text is selected
-    // useEffect(() => {
-    //     if (!canvasEditor || !onToolChange) return;
+    useEffect(() => {
+        if (!canvasEditor || !onToolChange) return;
 
-    //     const handleSelection = (e: any) => {
-    //         const selectedObject = e.selected?.[0];
-    //         if (selectedObject && selectedObject.type === 'i-text') {
-    //             onToolChange('text');
-    //         }
-    //     };
+        const handleSelection = (e: any) => {
+            const selectedObject = e.selected?.[0];
+            if (selectedObject && selectedObject.type === 'i-text') {
+                onToolChange('text');
+            }
+        };
 
-    //     canvasEditor.on('selection:created', handleSelection);
-    //     canvasEditor.on('selection:updated', handleSelection);
+        canvasEditor.on('selection:created', handleSelection);
+        canvasEditor.on('selection:updated', handleSelection);
 
-    //     return () => {
-    //         canvasEditor.off('selection:created', handleSelection);
-    //         canvasEditor.off('selection:updated', handleSelection);
-    //     };
-    // }, [canvasEditor, onToolChange]);
+        return () => {
+            canvasEditor.off('selection:created', handleSelection);
+            canvasEditor.off('selection:updated', handleSelection);
+        };
+    }, [canvasEditor, onToolChange]);
 
     return (
         <div

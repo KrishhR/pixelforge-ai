@@ -46,11 +46,11 @@ const TOOLS: ToolsTypes[] = [
         label: 'Adjust',
         icon: Sliders,
     },
-    // {
-    //     id: 'text',
-    //     label: 'Text',
-    //     icon: Text,
-    // },
+    {
+        id: 'text',
+        label: 'Text',
+        icon: Text,
+    },
     {
         id: 'background',
         label: 'AI Background',

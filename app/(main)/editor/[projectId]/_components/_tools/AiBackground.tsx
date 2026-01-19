@@ -3,7 +3,16 @@ import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import { useCanvas } from '@/context/context';
 import { TabsTrigger } from '@radix-ui/react-tabs';
 import { FabricImage } from 'fabric';
-import { Download, ImageIcon, Loader2, Palette, Search, Trash, Trash2 } from 'lucide-react';
+import {
+    Download,
+    ImageIcon,
+    Loader2,
+    Palette,
+    Search,
+    Trash,
+    Trash2,
+    WandSparkles,
+} from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { HexColorPicker } from 'react-colorful';
@@ -16,11 +25,13 @@ const UNSPLASH_API_URL = 'https://api.unsplash.com';
 const BackgroundControls = ({ project }: { project: any }) => {
     const { canvasEditor, processingMessage, setProcessingMessage } = useCanvas();
 
-    const [backgroundColor, setBackgroundColor] = useState('ffffff'); // Default white color
+    const [backgroundColor, setBackgroundColor] = useState('#9a1d1d'); // Default white color
     const [searchQuery, setSearchQuery] = useState(''); // User's search input
     const [unsplashImages, setUnsplashImages] = useState<any[]>([]); // Search result from unsplash
     const [isSearching, setIsSearching] = useState(false); // Loading state for searching
+    const [isGenerating, setIsGenerating] = useState(false); // Loading state for generating AI Background
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null); // Track which image is being processed
+    const [promptQuery, setPromptQuery] = useState(''); // Image Prompt state
 
     // Get the currently selected or main image
     const getActiveImage = (): FabricImage | null => {
@@ -94,7 +105,7 @@ const BackgroundControls = ({ project }: { project: any }) => {
 
         try {
             const response = await fetch(
-                `${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12`,
+                `${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=15`,
                 {
                     headers: {
                         Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`, // Unsplash requires this format
@@ -195,7 +206,7 @@ const BackgroundControls = ({ project }: { project: any }) => {
     return (
         <div className="space-y-6 relative h-full">
             {/* AI background removal */}
-            <div>
+            <div className=" pb-5 border-b border-white/10">
                 <h3 className="text-sm font-medium text-white mb-2">AI Background Removal</h3>
                 <p className="text-xs text-white/70 mb-4">
                     Automatically remove the background from your image using AI
@@ -218,6 +229,36 @@ const BackgroundControls = ({ project }: { project: any }) => {
                     Please add an image to the canvas first to remove its background
                 </p>
             )}
+
+            {/* AI Background Generator */}
+            {/* <div className=" pb-5 border-b border-white/10">
+                <h4 className="text-sm font-medium text-white mb-2">AI Background Generator</h4>
+                <p className="text-xs text-white/70 mb-4">
+                    Generate background images using AI from your text prompt
+                </p>
+
+                <div className="flex gap-2">
+                    <Input
+                        value={promptQuery}
+                        onChange={(e) => setPromptQuery(e.target.value)}
+                        placeholder="Describe the background you want..."
+                        onKeyDown={(e) => {}} // Allow Enter to search
+                        className="flex-1 bg-slate-700 border-white/20 text-white"
+                    />
+
+                    <Button
+                        variant="primary"
+                        disabled={isSearching || !promptQuery.trim()} // Disable if searching or empty query
+                        onClick={searchUnsplashImages}
+                    >
+                        {isSearching ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <WandSparkles className="h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
+            </div> */}
 
             <Tabs defaultValue="color" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 ">

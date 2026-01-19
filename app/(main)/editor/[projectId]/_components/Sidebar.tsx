@@ -6,6 +6,7 @@ import CropContent from './_tools/Crop';
 import ResizeControl from './_tools/Resize';
 import AdjustControl from './_tools/Adjust';
 import BackgroundControls from './_tools/AiBackground';
+import TextControls from './_tools/Text';
 
 type ToolsConfigTypes = {
     [key in ToolIdTypes]: {
@@ -91,6 +92,8 @@ const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; p
             return <CropContent />;
         case 'adjust':
             return <AdjustControl />;
+        case 'text':
+            return <TextControls />;
         case 'background':
             return <BackgroundControls project={project} />;
 

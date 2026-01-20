@@ -18,6 +18,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasInstanceRef = useRef<Canvas | null>(null);
     const initializingRef = useRef(false);
+    const lastSavedRef = useRef<string | null>(null);
 
     const { canvasEditor, setCanvasEditor, activeTool, onToolChange, isCroppingRef } = useCanvas();
 
@@ -182,7 +183,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
 
     // Initialize canvas when component mounts or project changes
     useEffect(() => {
-        if (!canvasRef.current || !project || initializingRef.current) return;
+        if (!canvasRef.current || !project?._id || initializingRef.current) return;
 
         initializeCanvas();
 
@@ -198,7 +199,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
                 setCanvasEditor(null);
             }
         };
-    }, [project]);
+    }, [project?._id]);
 
     // Auto-save canvas state with debouncing
     const saveCanvasState = async () => {
@@ -207,11 +208,10 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
         try {
             // Export canvas to JSON format (includes all objects and properties)
             const canvasJSON = canvasEditor.toJSON();
+            const serialized = JSON.stringify(canvasJSON);
 
-            // Check if canvas state has actually changed
-            if (JSON.stringify(canvasJSON) === JSON.stringify(project.canvasState)) {
-                return; // No changes, skip save
-            }
+            if (serialized === lastSavedRef.current) return;
+            lastSavedRef.current = serialized;
 
             // Save to database
             await updateProject({
@@ -276,7 +276,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
         window.addEventListener('resize', handleResize);
 
         return () => window.removeEventListener('resize', handleResize);
-    }, [canvasEditor, project]);
+    }, [canvasEditor, project?.width, project?.height]);
 
     // Update cursor based on active tool
     useEffect(() => {

@@ -110,6 +110,7 @@ const TextControls = () => {
         underline: false,
     });
 
+    // Check if selected object is text
     const updateSelectedText = () => {
         if (!canvasEditor) return;
 
@@ -145,6 +146,7 @@ const TextControls = () => {
         }
     };
 
+    // Listen for selection changes
     useEffect(() => {
         if (!canvasEditor) return;
 
@@ -165,6 +167,7 @@ const TextControls = () => {
         };
     }, [canvasEditor]);
 
+    // Add new text to canvas
     const addText = () => {
         if (!canvasEditor) return;
 
@@ -191,6 +194,7 @@ const TextControls = () => {
         }, 100);
     };
 
+    // Apply font family to selected text
     const applyFontFamily = (family: FontFamilyTypes) => {
         if (!selectedText) return;
         setFontFamily(family); // Update local state
@@ -198,6 +202,7 @@ const TextControls = () => {
         canvasEditor?.requestRenderAll();
     };
 
+    // Apply font size to selected text
     const applyFontSize = (size: number | number[]) => {
         if (!selectedText) return;
         // Handle both direct and array values from Slider componant
@@ -207,6 +212,7 @@ const TextControls = () => {
         canvasEditor?.requestRenderAll();
     };
 
+    // Apply text alignment to selected text
     const applyTextAlignment = (align: TextAlignTypes) => {
         if (!selectedText) return;
         setTextAlign(align);
@@ -214,6 +220,7 @@ const TextControls = () => {
         canvasEditor?.requestRenderAll();
     };
 
+    // Apply text color to selected text
     const applyTextColor = (color: string) => {
         if (!selectedText) return;
         setTextColor(color as HexColorTypes);
@@ -221,6 +228,7 @@ const TextControls = () => {
         canvasEditor?.requestRenderAll();
     };
 
+    // Toggle text formatting
     const toggleFormat = (format: TextFormattingTypes) => {
         if (!selectedText) return;
 
@@ -245,6 +253,7 @@ const TextControls = () => {
         });
     };
 
+    // Delete selected text
     const deleteSelectedText = () => {
         if (!canvasEditor || !selectedText) return;
 
@@ -263,6 +272,7 @@ const TextControls = () => {
 
     return (
         <div className="space-y-6">
+            {/* ADD TEXT BUTTON */}
             <div className="space-y-4">
                 <div>
                     <h3 className="text-sm font-medium text-white mb-2">Add Text</h3>
@@ -391,6 +401,7 @@ const TextControls = () => {
                 </div>
             )}
 
+            {/* EXTRA INFO */}
             <div className="bg-slate-700/30 p-3 rounded-lg">
                 <p className="text-xs text-white/70">
                     <strong>Double-click</strong> to edit it directly on canvas.

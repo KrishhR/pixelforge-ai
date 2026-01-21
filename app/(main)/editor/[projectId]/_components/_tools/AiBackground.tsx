@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import { useCanvas } from '@/context/context';

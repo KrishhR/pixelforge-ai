@@ -18,7 +18,7 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasInstanceRef = useRef<Canvas | null>(null);
     const initializingRef = useRef(false);
-    const lastSavedRef = useRef<string | null>(null);
+    // const lastSavedRef = useRef<string | null>(null);
 
     const { canvasEditor, setCanvasEditor, activeTool, onToolChange, isCroppingRef } = useCanvas();
 
@@ -208,10 +208,10 @@ const CanvasEditor = ({ project }: CanvasEditorProps) => {
         try {
             // Export canvas to JSON format (includes all objects and properties)
             const canvasJSON = canvasEditor.toJSON();
-            const serialized = JSON.stringify(canvasJSON);
+            // const serialized = JSON.stringify(canvasJSON);
 
-            if (serialized === lastSavedRef.current) return;
-            lastSavedRef.current = serialized;
+            // if (serialized === lastSavedRef.current) return;
+            // lastSavedRef.current = serialized;
 
             // Save to database
             await updateProject({

@@ -18,12 +18,15 @@ import { toast } from 'sonner';
 import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
+import { useConvexMutation } from '@/hooks/useConvexQuery';
+import { api } from '@/convex/_generated/api';
 
 const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
 const UNSPLASH_API_URL = 'https://api.unsplash.com';
 
 const BackgroundControls = ({ project }: { project: any }) => {
     const { canvasEditor, processingMessage, setProcessingMessage } = useCanvas();
+    const { mutate: updateProject } = useConvexMutation(api.projects.updateProject);
 
     const [backgroundColor, setBackgroundColor] = useState('#9a1d1d'); // Default white color
     const [searchQuery, setSearchQuery] = useState(''); // User's search input
@@ -81,6 +84,12 @@ const BackgroundControls = ({ project }: { project: any }) => {
             canvasEditor?.setActiveObject(processedImage);
             canvasEditor?.calcOffset(); // Recalculate canvas offset for proper mouse interactions
             canvasEditor?.requestRenderAll(); // Force re-renders
+
+            await updateProject({
+                projectId: project._id,
+                canvasState: canvasEditor?.toJSON(), // Save current canvas state
+                isBackgroundRemoved: true, // Setting background removed to true
+            });
         } catch (error) {
             console.error('Error Removing Background', error);
             toast.error('Failed to remove background. Please try again.');

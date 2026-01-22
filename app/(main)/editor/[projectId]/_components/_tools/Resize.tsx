@@ -32,8 +32,6 @@ const ResizeControl = ({ project }: { project: any }) => {
     const [lockAspectRatio, setLockAspectRatio] = useState<boolean>(false); // Whether to maintain proportions
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null); // Currently selected preset
 
-    // const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
     const {
         mutate: updateProject,
         data,

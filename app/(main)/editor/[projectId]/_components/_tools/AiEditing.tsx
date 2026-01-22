@@ -10,6 +10,7 @@ import {
     Camera,
     CheckCircle,
     Info,
+    LucideIcon,
     Mountain,
     Sparkles,
     User,
@@ -17,8 +18,21 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { getMainImage } from '../../_utils';
 
-const RETOUCH_PRESETS = [
+type RetouchPresetKey = 'ai_retouch' | 'ai_upscale' | 'enhance_sharpen' | 'premium_quality';
+
+/** Single retouch preset definition */
+interface RetouchPreset {
+    key: RetouchPresetKey;
+    label: string;
+    description: string;
+    icon: LucideIcon;
+    transform: string;
+    recommended: boolean;
+}
+
+const RETOUCH_PRESETS: readonly RetouchPreset[] = [
     {
         key: 'ai_retouch',
         label: 'AI Retouch',
@@ -55,22 +69,14 @@ const RETOUCH_PRESETS = [
 
 const AiEditingControls = ({ project }: { project: any }) => {
     const { canvasEditor, setProcessingMessage } = useCanvas();
-    const [selectedPreset, setSelectedPreset] = useState('ai_retouch');
+    const [selectedPreset, setSelectedPreset] = useState<RetouchPresetKey>('ai_retouch');
 
     const { mutate: updateProject } = useConvexMutation(api.projects.updateProject);
 
-    const hasActiveTransformations = project.activeTransformations?.includes('e-retouch');
-    const selectedPresetData = RETOUCH_PRESETS.find((p) => p.key === selectedPreset);
+    const hasActiveTransformations = project.activeTransformations?.includes('e-retouch'); // Check whether any AI retouch has already been applied
+    const selectedPresetData = RETOUCH_PRESETS.find((p) => p.key === selectedPreset); // Full preset metadata for the selected preset
 
-    const getMainImage = (): FabricImage | null => {
-        if (!canvasEditor) return null;
-
-        const imgObj = canvasEditor.getObjects().find((obj) => (obj as any).type === 'image') as
-            | FabricImage
-            | undefined;
-        return imgObj instanceof FabricImage ? imgObj : null;
-    };
-
+    // Build a transformed image URL, preserving existing transformations
     const buildRetouchUrl = (imageUrl: string, presetKey: string) => {
         const preset = RETOUCH_PRESETS.find((p) => p.key === presetKey);
         if (!preset || !imageUrl) return imageUrl;
@@ -89,8 +95,9 @@ const AiEditingControls = ({ project }: { project: any }) => {
         return `${baseUrl}?tr=${preset.transform}`;
     };
 
-    const applyRetouch = async () => {
-        const mainImage = getMainImage();
+    // Apply the selected AI enhancement to the canvas image
+    const applyEnhancement = async () => {
+        const mainImage = getMainImage(canvasEditor);
         if (!mainImage || !project || !selectedPresetData) return;
 
         setProcessingMessage(`Enhancing image with ${selectedPresetData.label}...`);
@@ -99,10 +106,12 @@ const AiEditingControls = ({ project }: { project: any }) => {
             const currentImageUrl = mainImage?.getSrc();
             const retouchedUrl = buildRetouchUrl(currentImageUrl, selectedPreset);
 
+            // Load enhanced image from URL
             const retouchedImage = await FabricImage.fromURL(retouchedUrl, {
                 crossOrigin: 'anonymous', // Required for CORS
             });
 
+            // Preserve original image transforms and position
             const imageProps = {
                 left: mainImage.left, // X position
                 top: mainImage.top, // Y position
@@ -115,6 +124,7 @@ const AiEditingControls = ({ project }: { project: any }) => {
                 evented: true, // Allow events
             };
 
+            // Replace image on the canvas
             canvasEditor?.remove(mainImage); // Remove original
             retouchedImage.set(imageProps); // Apply preserved properties
             canvasEditor?.add(retouchedImage); // Add enhanced image to canvas
@@ -122,6 +132,7 @@ const AiEditingControls = ({ project }: { project: any }) => {
             canvasEditor?.setActiveObject(retouchedImage); // Make it active object
             canvasEditor?.requestRenderAll(); // Refresh canvas display
 
+            // Persist project changes
             await updateProject({
                 projectId: project._id,
                 currentImageUrl: retouchedUrl, // Store the enhanced image url
@@ -147,7 +158,7 @@ const AiEditingControls = ({ project }: { project: any }) => {
         );
     }
 
-    const mainImage = getMainImage();
+    const mainImage = getMainImage(canvasEditor);
     if (!mainImage) {
         return (
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
@@ -223,7 +234,7 @@ const AiEditingControls = ({ project }: { project: any }) => {
                 </div>
             </div>
 
-            <Button variant="primary" className="w-full" onClick={applyRetouch}>
+            <Button variant="primary" className="w-full" onClick={applyEnhancement}>
                 <Wand2 className="h-4 w-4" />
                 Apply {selectedPresetData?.label}
             </Button>

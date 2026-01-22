@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { getMainImage } from '../../_utils';
 
 type TypeCropAspectRatio = {
     label: string;
@@ -79,17 +80,6 @@ const CropContent = () => {
         return canvasEditor
             ?.getObjects()
             .find((o) => (o as any).objectId === 'crop-rect') as Rect | null;
-    };
-
-    // Get the currently selected or main image
-    const getActiveImage = (): FabricImage | null => {
-        if (!canvasEditor) return null;
-        const objects = canvasEditor.getObjects();
-
-        const imgObj = objects.find((obj) => (obj as any).type === 'image') as
-            | FabricImage
-            | undefined;
-        return imgObj instanceof FabricImage ? imgObj : null;
     };
 
     const removeAllCropRectangles = () => {
@@ -197,7 +187,7 @@ const CropContent = () => {
         }
 
         // Restore image properties
-        const image = getActiveImage();
+        const image = getMainImage(canvasEditor);
 
         if (image && originalProps) {
             image.set({
@@ -269,7 +259,7 @@ const CropContent = () => {
     // Apply the crop operation
     const applyCrop = async () => {
         try {
-            const selectedImage = getActiveImage();
+            const selectedImage = getMainImage(canvasEditor);
             const cropRect = getCropRect();
 
             if (!selectedImage || !cropRect || !canvasEditor) {
@@ -337,7 +327,7 @@ const CropContent = () => {
         }
     };
 
-    const activeImage = getActiveImage();
+    const activeImage = getMainImage(canvasEditor);
 
     if (!canvasEditor) {
         return (
@@ -415,6 +405,7 @@ const CropContent = () => {
                 </div>
             )}
 
+            {/* ADDITIONAL INFO */}
             <div className="bg-slate-700/30 rounded-lg p-3">
                 <p className="text-xs text-white/70">
                     <strong>How to crop:</strong>

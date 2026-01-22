@@ -9,6 +9,7 @@ import { FabricImage } from 'fabric';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { getMainImage } from '../../_utils';
 
 const DIRECTIONS = [
     { key: 'top', label: 'Top', icon: ArrowUp },
@@ -33,22 +34,13 @@ const AiExtenderControls = ({ project }: { project: any }) => {
 
     const { mutate: updateProject } = useConvexMutation(api.projects.updateProject);
 
-    const getMainImage = (): FabricImage | null => {
-        if (!canvasEditor) return null;
-
-        const imgObj = canvasEditor.getObjects().find((obj) => (obj as any).type === 'image') as
-            | FabricImage
-            | undefined;
-        return imgObj instanceof FabricImage ? imgObj : null;
-    };
-
     const getImageSrc = (image: FabricImage | null) => {
         if (!image) return;
         return image.getSrc();
     };
 
     const hasBackgroundRemoval = () => {
-        const imageSrc = getImageSrc(getMainImage());
+        const imageSrc = getImageSrc(getMainImage(canvasEditor));
         return (
             imageSrc?.includes('e-bgremove') || // Imagekit bg removal
             imageSrc?.includes('e-removedotbg') || // Alternative bg removal
@@ -57,7 +49,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
     };
 
     const calculateDimensions = () => {
-        const img = getMainImage();
+        const img = getMainImage(canvasEditor);
         if (!img || !selectedDirection) return { width: 0, height: 0 };
 
         const currentWidth = img.width * (img.scaleX || 1);
@@ -98,7 +90,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
     };
 
     const applyExtension = async () => {
-        const mainImage = getMainImage();
+        const mainImage = getMainImage(canvasEditor);
         if (!mainImage || !selectedDirection) return;
 
         setProcessingMessage('Extending image with AI...');
@@ -171,7 +163,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
     }
 
     const { width: newWidth, height: newHeight } = calculateDimensions();
-    const currentImage = getMainImage();
+    const currentImage = getMainImage(canvasEditor);
 
     if (!currentImage) {
         return <div className="p-4 text-white/70 text-sm">Please add an image first</div>;

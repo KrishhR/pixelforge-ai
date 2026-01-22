@@ -6,8 +6,9 @@ import { useCanvas } from '@/context/context';
 import { FabricImage, filters } from 'fabric';
 import { Loader2, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { getActiveImage } from '../../_utils';
 
-type FilterClassTypes =
+type AdjustFilterClassTypes =
     | typeof filters.Brightness
     | typeof filters.Contrast
     | typeof filters.Saturation
@@ -15,21 +16,21 @@ type FilterClassTypes =
     | typeof filters.Blur
     | typeof filters.HueRotation;
 
-type FilterConfigTypes = {
+type AdjustFilterConfigTypes = {
     key: string;
     label: string;
     min: number;
     max: number;
     step: number;
     defaultValue: number;
-    filterClass: FilterClassTypes;
+    filterClass: AdjustFilterClassTypes;
     valueKey: string;
     transform: (value: number) => number;
     suffix?: string;
 };
 
 // Filter configurations
-const ADJUST_FILTER_CONFIG: FilterConfigTypes[] = [
+const ADJUST_FILTER_CONFIG: AdjustFilterConfigTypes[] = [
     {
         key: 'brightness',
         label: 'Brightness',
@@ -100,7 +101,7 @@ const ADJUST_FILTER_CONFIG: FilterConfigTypes[] = [
 ];
 
 const DEFAULT_VALUES: Record<string, number> = ADJUST_FILTER_CONFIG.reduce(
-    (acc: Record<string, number>, config: FilterConfigTypes) => {
+    (acc: Record<string, number>, config: AdjustFilterConfigTypes) => {
         acc[config.key] = config.defaultValue;
         return acc;
     },
@@ -113,19 +114,8 @@ const AdjustControl = () => {
 
     const { canvasEditor } = useCanvas();
 
-    const getActiveImage = (): FabricImage | null => {
-        if (!canvasEditor) return null;
-        const activeObject = canvasEditor.getActiveObject();
-
-        if (activeObject instanceof FabricImage) return activeObject;
-
-        const objects = canvasEditor.getObjects();
-        const imgObj = objects.find((obj) => obj instanceof FabricImage);
-        return imgObj instanceof FabricImage ? imgObj : null;
-    };
-
     const applyFilters = async (newValues: Record<string, number>) => {
-        const imageObject = getActiveImage();
+        const imageObject = getActiveImage(canvasEditor);
         if (!imageObject || isApplying) return;
 
         setIsApplying(true);
@@ -133,7 +123,7 @@ const AdjustControl = () => {
         try {
             const filtersToApply: any[] = [];
 
-            ADJUST_FILTER_CONFIG.forEach((config: FilterConfigTypes) => {
+            ADJUST_FILTER_CONFIG.forEach((config: AdjustFilterConfigTypes) => {
                 const value = newValues[config.key];
 
                 if (value !== config.defaultValue) {
@@ -195,7 +185,7 @@ const AdjustControl = () => {
     };
 
     useEffect(() => {
-        const imageObject = getActiveImage();
+        const imageObject = getActiveImage(canvasEditor);
         if (imageObject?.filters) {
             const existingValues = extractFilterValues(imageObject);
             setFilterValues(existingValues);
@@ -210,7 +200,7 @@ const AdjustControl = () => {
         );
     }
 
-    const activeImage = getActiveImage();
+    const activeImage = getActiveImage(canvasEditor);
     if (!activeImage) {
         return (
             <div className="p-4">
@@ -237,7 +227,7 @@ const AdjustControl = () => {
             </div>
 
             {/* filter controls */}
-            {ADJUST_FILTER_CONFIG.map((config: FilterConfigTypes) => (
+            {ADJUST_FILTER_CONFIG.map((config: AdjustFilterConfigTypes) => (
                 <div key={config.key} className="space-y-2">
                     <div className="flex items-center justify-between">
                         <label>{config.label}</label>

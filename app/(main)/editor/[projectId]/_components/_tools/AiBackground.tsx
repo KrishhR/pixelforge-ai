@@ -5,16 +5,7 @@ import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import { useCanvas } from '@/context/context';
 import { TabsTrigger } from '@radix-ui/react-tabs';
 import { FabricImage } from 'fabric';
-import {
-    Download,
-    ImageIcon,
-    Loader2,
-    Palette,
-    Search,
-    Trash,
-    Trash2,
-    WandSparkles,
-} from 'lucide-react';
+import { Download, ImageIcon, Loader2, Palette, Search, Trash, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { HexColorPicker } from 'react-colorful';
@@ -22,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { useConvexMutation } from '@/hooks/useConvexQuery';
 import { api } from '@/convex/_generated/api';
+import { getMainImage } from '../../_utils';
 
 const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
 const UNSPLASH_API_URL = 'https://api.unsplash.com';
@@ -34,24 +26,13 @@ const BackgroundControls = ({ project }: { project: any }) => {
     const [searchQuery, setSearchQuery] = useState(''); // User's search input
     const [unsplashImages, setUnsplashImages] = useState<any[]>([]); // Search result from unsplash
     const [isSearching, setIsSearching] = useState(false); // Loading state for searching
-    const [isGenerating, setIsGenerating] = useState(false); // Loading state for generating AI Background
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null); // Track which image is being processed
+    const [isGenerating, setIsGenerating] = useState(false); // Loading state for generating AI Background
     const [promptQuery, setPromptQuery] = useState(''); // Image Prompt state
-
-    // Get the currently selected or main image
-    const getActiveImage = (): FabricImage | null => {
-        if (!canvasEditor) return null;
-        const objects = canvasEditor.getObjects();
-
-        const imgObj = objects.find((obj) => (obj as any).type === 'image') as
-            | FabricImage
-            | undefined;
-        return imgObj instanceof FabricImage ? imgObj : null;
-    };
 
     // Background removal using ImageKit
     const handleBackgroundRemoval = async () => {
-        const mainImage = getActiveImage();
+        const mainImage = getMainImage(canvasEditor);
         if (!mainImage || !project) return;
 
         setProcessingMessage('Removing background with AI...');
@@ -227,7 +208,7 @@ const BackgroundControls = ({ project }: { project: any }) => {
                     variant="primary"
                     className="w-full"
                     onClick={handleBackgroundRemoval}
-                    disabled={processingMessage !== null || getActiveImage() === null} // Disable if processing or no image
+                    disabled={processingMessage !== null || getMainImage(canvasEditor) === null} // Disable if processing or no image
                 >
                     <Trash className="h-4 w-4 mr-2" />
                     Remove Image Background
@@ -235,7 +216,7 @@ const BackgroundControls = ({ project }: { project: any }) => {
             </div>
 
             {/* Show warning if no image is available */}
-            {!getActiveImage() && (
+            {!getMainImage(canvasEditor) && (
                 <p className="text-xs text-amber-400">
                     Please add an image to the canvas first to remove its background
                 </p>
@@ -271,6 +252,7 @@ const BackgroundControls = ({ project }: { project: any }) => {
                 </div>
             </div> */}
 
+            {/* COLOR AND IMAGE TABS */}
             <Tabs defaultValue="color" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 ">
                     <TabsTrigger
@@ -435,6 +417,7 @@ const BackgroundControls = ({ project }: { project: any }) => {
                 </TabsContent>
             </Tabs>
 
+            {/* CLEAR CANVAS BUTTON */}
             <div className="py-4 border-t border-white/10 w-full">
                 <Button variant="outline" className="w-full" onClick={handleClearCanvasBackground}>
                     <Trash2 className="h-4 w-4 mr-2" />

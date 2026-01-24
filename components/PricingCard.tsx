@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { CheckoutButton } from '@clerk/nextjs/experimental';
 import { toast } from 'sonner';
 import { PlansType } from './PricingSection';
+import { shadcn } from '@clerk/themes';
 
 const PricingCard = ({
     id,
@@ -26,9 +27,8 @@ const PricingCard = ({
         if (isCurrentPlan) return;
 
         try {
-            // TODO_1 => handle "Upgrade to pro" button when user is not logged in! => Need to implement in This function
-            // TODO_2 => bit of UI fixes
-            // TODO_3 => upgrading plan does not reflect in convex db,
+            // TODO_1 => handle "Upgrade to pro" button must take to log in page when user is not logged in!
+            // => Need to implement in This function
         } catch (error) {
             console.error('Checkout Error', error);
             toast.error('Something went wrong' + error);
@@ -39,6 +39,7 @@ const PricingCard = ({
         <div
             ref={ref}
             className={`relative backdrop-blur-lg  border  rounded-3xl p-8 transition-all duration-700 cursor-pointer 
+                flex flex-col h-full
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
                 ${isHovered ? 'transform scale-105 rotate-1 z-10' : ''}
                 ${
@@ -58,7 +59,7 @@ const PricingCard = ({
                 </div>
             )}
 
-            <div className="text-center">
+            <div className="text-center flex flex-col flex-1">
                 <h3 className="text-2xl font-bold text-white mb-2">{plan}</h3>
                 <div className="text-4xl font-bold bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-6">
                     ${price} {price > 0 && <span className="text-lg text-gray-400">/month</span>}
@@ -73,22 +74,37 @@ const PricingCard = ({
                     ))}
                 </ul>
 
-                <SignedIn>
-                    <CheckoutButton
-                        planId={planId!}
-                        planPeriod="month"
-                        for="user"
-                        checkoutProps={{
-                            appearance: {
-                                elements: {
-                                    drawerRoot: {
-                                        zIndex: 20000,
+                <div className="mt-auto">
+                    <SignedIn>
+                        <CheckoutButton
+                            planId={planId!}
+                            planPeriod="month"
+                            for="user"
+                            checkoutProps={{
+                                appearance: {
+                                    elements: {
+                                        drawerRoot: {
+                                            zIndex: 20000,
+                                        },
                                     },
+                                    baseTheme: shadcn,
                                 },
-                            },
-                        }}
-                    >
+                            }}
+                        >
+                            <Button
+                                variant={featured ? 'primary' : 'glass'}
+                                size="xl"
+                                className="w-full"
+                                disabled={isCurrentPlan || !planId}
+                            >
+                                {isCurrentPlan ? 'Current Plan' : buttonText}
+                            </Button>
+                        </CheckoutButton>
+                    </SignedIn>
+
+                    <SignedOut>
                         <Button
+                            onClick={handlePopup}
                             variant={featured ? 'primary' : 'glass'}
                             size="xl"
                             className="w-full"
@@ -96,20 +112,8 @@ const PricingCard = ({
                         >
                             {isCurrentPlan ? 'Current Plan' : buttonText}
                         </Button>
-                    </CheckoutButton>
-                </SignedIn>
-
-                <SignedOut>
-                    <Button
-                        onClick={handlePopup}
-                        variant={featured ? 'primary' : 'glass'}
-                        size="xl"
-                        className="w-full"
-                        disabled={isCurrentPlan || !planId}
-                    >
-                        {isCurrentPlan ? 'Current Plan' : buttonText}
-                    </Button>
-                </SignedOut>
+                    </SignedOut>
+                </div>
             </div>
         </div>
     );

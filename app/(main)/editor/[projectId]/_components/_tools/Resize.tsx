@@ -8,13 +8,16 @@ import { useConvexMutation } from '@/hooks/useConvexQuery';
 import { Expand, Lock, Monitor, Unlock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
+/**
+ * Type for predefined aspect ratio options
+ */
 type TypeResizeAspectRatio = {
     name: string;
     ratio: number[];
     label: string;
 };
 
+// Common social/media aspect ratio presets
 const RESIZE_ASPECT_RATIOS: TypeResizeAspectRatio[] = [
     { name: 'Instagram Story', ratio: [9, 16], label: '9:16' },
     { name: 'Instagram Post', ratio: [1, 1], label: '1:1' },
@@ -38,8 +41,13 @@ const ResizeControl = ({ project }: { project: any }) => {
         isLoading,
     } = useConvexMutation(api.projects.updateProject);
 
+    // Detect whether user actually changed dimensions
     const hasChanges: boolean = newWidth !== project?.width || newHeight !== project?.height;
 
+    /**
+     * Trigger window resize after successful update
+     * (helps canvas recalc layout in parent containers)
+     */
     useEffect(() => {
         if (!isLoading && data) {
             setTimeout(() => {
@@ -48,6 +56,10 @@ const ResizeControl = ({ project }: { project: any }) => {
         }
     }, [data, isLoading]);
 
+    /**
+     * Handle manual width input
+     * Updates height automatically if aspect ratio is locked
+     */
     const handleWidthChange = (value: string) => {
         const width = parseInt(value) || 0;
         setNewWidth(width);
@@ -60,6 +72,10 @@ const ResizeControl = ({ project }: { project: any }) => {
         setSelectedPreset(null);
     };
 
+    /**
+     * Handle manual height input
+     * Updates width automatically if aspect ratio is locked
+     */
     const handleHeightChange = (value: string) => {
         const height = parseInt(value) || 0;
         setNewHeight(height);
@@ -72,6 +88,7 @@ const ResizeControl = ({ project }: { project: any }) => {
         setSelectedPreset(null);
     };
 
+    // Calculate dimensions for aspect ratio based on original canvas size
     const calculateAspectRatioDimensions = (ratio: number[]) => {
         if (!project) return { width: project.width, height: project.height };
 
@@ -89,6 +106,7 @@ const ResizeControl = ({ project }: { project: any }) => {
         };
     };
 
+    // Apply a predefined aspect ratio preset
     const applyAspectRatio = (aspectRatio: TypeResizeAspectRatio) => {
         const dimensions = calculateAspectRatioDimensions(aspectRatio.ratio);
         setNewWidth(dimensions.width);
@@ -96,6 +114,7 @@ const ResizeControl = ({ project }: { project: any }) => {
         setSelectedPreset(aspectRatio.name);
     };
 
+    // Calculates zoom level so canvas fits inside its container
     const calculateViewportScale = () => {
         const container = canvasEditor?.getElement().parentElement;
 
@@ -110,6 +129,7 @@ const ResizeControl = ({ project }: { project: any }) => {
         return Math.min(scaleX, scaleY, 1);
     };
 
+    // Applies resize to Fabric canvas and persists it
     const handleApplyResize = async () => {
         if (
             !canvasEditor ||
@@ -166,6 +186,7 @@ const ResizeControl = ({ project }: { project: any }) => {
 
     return (
         <div className="space-y-6">
+            {/* Current canvas size */}
             <div className="bg-slate-700/30 rounded-lg p-3">
                 <h4 className="text-sm font-medium text-white mb-2">Current Size</h4>
                 <div className="text-xs text-white/70">
@@ -173,6 +194,7 @@ const ResizeControl = ({ project }: { project: any }) => {
                 </div>
             </div>
 
+            {/* Custom resize inputs */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-medium text-white">Custom Size</h3>
@@ -257,6 +279,7 @@ const ResizeControl = ({ project }: { project: any }) => {
                 </div>
             </div>
 
+            {/* Resize preview */}
             {hasChanges && (
                 <div className="bg-slate-700/30 rounded-lg p-3">
                     <h4 className="text-sm font-medium text-white mb-2">New Size Preview</h4>
@@ -278,6 +301,7 @@ const ResizeControl = ({ project }: { project: any }) => {
                 </div>
             )}
 
+            {/* Apply button */}
             <Button
                 onClick={handleApplyResize}
                 className="w-full"
@@ -288,6 +312,7 @@ const ResizeControl = ({ project }: { project: any }) => {
                 Apply Resize
             </Button>
 
+            {/* Help text */}
             <div className="bg-slate-700/30 rounded-lg p-3">
                 <p className="text-xs text-white/70 leading-normal">
                     <strong>Resize Canvas:</strong> Changes canvas dimensions.

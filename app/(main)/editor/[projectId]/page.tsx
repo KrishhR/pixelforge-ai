@@ -24,12 +24,12 @@ const Editor = () => {
         error,
     } = useConvexQuery(api.projects.getProject, { projectId });
 
-    const [canvasEditor, setCanvasEditor] = useState<Canvas | null>(null);
-    const [processingMessage, setProcessingMessage] = useState<string | null>(null);
-    const [activeTool, setActiveTool] = useState<ToolIdTypes>('resize');
-    const isCroppingRef = useRef<boolean>(false);
+    const [canvasEditor, setCanvasEditor] = useState<Canvas | null>(null); // Holds the Fabric.js canvas instance
+    const [processingMessage, setProcessingMessage] = useState<string | null>(null); // Message shown during long-running operations (AI tools, exports, etc.)
+    const [activeTool, setActiveTool] = useState<ToolIdTypes>('resize'); // Currently active editor tool
+    const isCroppingRef = useRef<boolean>(false); // Ref to track cropping mode without triggering re-renders
 
-    useSyncUserPlan();
+    useSyncUserPlan(); // Sync the user's subscription plan on editor load
 
     if (isLoading) {
         return (

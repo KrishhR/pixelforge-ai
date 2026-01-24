@@ -9,6 +9,7 @@ import { useStoreUserEffect } from '@/hooks/useStoreUserEffect';
 import { BarLoader } from 'react-spinners';
 import { Authenticated, Unauthenticated } from 'convex/react';
 import { LayoutDashboard } from 'lucide-react';
+import { shadcn } from '@clerk/themes';
 
 const Header = () => {
     const path = usePathname();
@@ -20,7 +21,7 @@ const Header = () => {
 
     return (
         <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 text-nowrap">
-            <div className="bg-white/10 backdrop:blur-md  border border-white/20 rounded-full px-8 py-3 flex items-center justify-between gap-8">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-8 py-3 flex items-center justify-between gap-8">
                 <Link href="/" className="mr-10 md:mr-20 flex items-center gap-2">
                     <Image
                         src={'/logo-text.png'}
@@ -78,6 +79,7 @@ const Header = () => {
                                 elements: {
                                     avatarBox: 'w-8 h-8',
                                 },
+                                baseTheme: shadcn,
                             }}
                         />
                     </Authenticated>

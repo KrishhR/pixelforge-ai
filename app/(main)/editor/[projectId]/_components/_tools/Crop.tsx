@@ -17,14 +17,14 @@ import {
 import { ForwardRefExoticComponent, RefAttributes, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getMainImage } from '../../_utils';
-
+/** Aspect ratio option definition */
 type TypeCropAspectRatio = {
     label: string;
     value: number | null;
     icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
     ratio?: string;
 };
-
+/** Used to restore image state when exiting crop mode */
 type ImagePropsTypes = {
     left: number;
     top: number;
@@ -36,7 +36,7 @@ type ImagePropsTypes = {
     selectable: boolean;
     evented: boolean;
 };
-
+/** Preset crop aspect ratios */
 const CROP_ASPECT_RATIOS: TypeCropAspectRatio[] = [
     {
         label: 'Freeform',
@@ -76,12 +76,14 @@ const CropContent = () => {
     const [selectedRatio, setSelectedRatio] = useState<number | null>(null); // Currently selected aspect ratio
     const [originalProps, setOriginalProps] = useState<ImagePropsTypes | null>(null); // store original image properties for restoration
 
+    // Find the active crop rectangle on the canvas
     const getCropRect = (): Rect | null => {
         return canvasEditor
             ?.getObjects()
             .find((o) => (o as any).objectId === 'crop-rect') as Rect | null;
     };
 
+    // Remove any existing crop rectangles or leftover rects
     const removeAllCropRectangles = () => {
         if (!canvasEditor) return;
 
@@ -358,14 +360,13 @@ const CropContent = () => {
                     Start Cropping
                 </Button>
             )}
-
+            {/* Aspect ratio selection */}
             {isCropMode && (
                 <div>
                     <h3 className="text-sm font-medium text-white mb-3">Crop Aspect Ratios</h3>
                     <div className="grid grid-cols-3 gap-2">
                         {CROP_ASPECT_RATIOS.map((aspectRatio: TypeCropAspectRatio) => {
                             const IconComponent = aspectRatio.icon;
-
                             return (
                                 <button
                                     key={aspectRatio.label}
@@ -391,6 +392,7 @@ const CropContent = () => {
                 </div>
             )}
 
+            {/* Action buttons */}
             {isCropMode && (
                 <div className="space-y-3 pt-4 border-t border-white/10">
                     <Button onClick={applyCrop} className="w-full" variant="primary">

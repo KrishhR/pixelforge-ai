@@ -1,8 +1,8 @@
 import { SignIn } from '@clerk/nextjs';
-import React from 'react';
+import { shadcn } from '@clerk/themes';
 
 const SignInPage = () => {
-    return <SignIn />;
+    return <SignIn appearance={{ baseTheme: shadcn }} />;
 };
 
 export default SignInPage;

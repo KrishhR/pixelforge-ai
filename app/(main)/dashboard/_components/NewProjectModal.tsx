@@ -29,14 +29,15 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
     const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false);
 
     const router = useRouter();
+    const { isFree, canCreateProject } = usePlanAccess(); // Subscription info and project creation permissions
 
-    const { isFree, canCreateProject } = usePlanAccess();
-    const { data: projects } = useConvexQuery(api.projects.getUserProjects);
-    const { mutate: createProject } = useConvexMutation(api.projects.create);
+    const { data: projects } = useConvexQuery(api.projects.getUserProjects); // Fetch current user's projects to enforce plan limits
+    const { mutate: createProject } = useConvexMutation(api.projects.create); // Mutation to create a new project
 
-    const currentProjectCount = (Array.isArray(projects) && projects?.length) || 0;
-    const canCreate = canCreateProject(currentProjectCount);
+    const currentProjectCount = (Array.isArray(projects) && projects?.length) || 0; // Safely calculate project count
+    const canCreate = canCreateProject(currentProjectCount); // Check if the user can create another project
 
+    // Reset modal state and close it
     const handleClose = () => {
         setSelectedFile(null);
         setPreviewUrl(null);
@@ -45,6 +46,7 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         onClose();
     };
 
+    // Handle file selection via drag & drop
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
 
@@ -56,6 +58,7 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         }
     }, []);
 
+    // Dropzone configuration for image uploads
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         accept: {
@@ -65,6 +68,7 @@ const NewProjectModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         maxSize: 20 * 1024 * 1024, // 20MB limit
     });
 
+    // Main project creation flow
     const handleCreateProject = async () => {
         if (!canCreate) {
             setShowUpgradeModal(true);

@@ -11,10 +11,10 @@ import ProjectGrid from './_components/ProjectGrid';
 import useSyncUserPlan from '@/hooks/useSyncUserPlan';
 
 const Dashboard = () => {
-    const { data: projects, isLoading, error } = useConvexQuery(api.projects.getUserProjects);
+    const { data: projects, isLoading } = useConvexQuery(api.projects.getUserProjects);
 
-    const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-    useSyncUserPlan();
+    const [showNewProjectModal, setShowNewProjectModal] = useState(false); // Controls visibility of the "New Project" modal
+    useSyncUserPlan(); // Ensures the user's plan is up to date when dashboard loads
 
     return (
         <div className="min-h-screen pt-32 pb-16">
@@ -26,7 +26,7 @@ const Dashboard = () => {
                             Create and manage your AI-powered image designs
                         </p>
                     </div>
-
+                    {/* Button to open the New Project modal */}
                     <Button
                         onClick={() => setShowNewProjectModal(true)}
                         variant="primary"

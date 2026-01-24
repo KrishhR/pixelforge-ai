@@ -8,18 +8,19 @@ import { useEffect, useRef, useState } from 'react';
 import { Canvas, FabricImage, Point } from 'fabric';
 
 const CanvasEditor = ({ project }: { project: any }) => {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true); // Local loading state while initializing Fabric canvas
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasInstanceRef = useRef<Canvas | null>(null);
-    const initializingRef = useRef(false);
+    const initializingRef = useRef(false); // Prevent double initialization
     // const lastSavedRef = useRef<string | null>(null);
 
     const { canvasEditor, setCanvasEditor, activeTool, onToolChange, isCroppingRef } = useCanvas();
 
     const { mutate: updateProject } = useConvexMutation(api.projects.updateProject);
 
+    // Calculate optimal zoom so canvas fits inside container
     const calculateViewportScale = (): number => {
         if (!containerRef.current || !project) return 1;
 
@@ -33,6 +34,7 @@ const CanvasEditor = ({ project }: { project: any }) => {
         return Math.min(scaleX, scaleY, 1);
     };
 
+    // Initialize Fabric canvas and load project data
     const initializeCanvas = async () => {
         if (initializingRef.current) return;
         initializingRef.current = true;

@@ -21,6 +21,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { ForwardRefExoticComponent, RefAttributes, useState } from 'react';
 
+/**
+ *  Tool definition shape
+ */
 type ToolsTypes = {
     id: ToolIdTypes;
     label: string;
@@ -29,6 +32,7 @@ type ToolsTypes = {
     proOnly?: boolean;
 };
 
+// All available editor tools
 const TOOLS: ToolsTypes[] = [
     {
         id: 'resize',
@@ -73,23 +77,24 @@ const TOOLS: ToolsTypes[] = [
 
 const EditorTopbar = ({ project }: { project: any }) => {
     const router = useRouter();
-    const { activeTool, onToolChange, canvasEditor } = useCanvas();
-    const { hasAccess, canExport, isFree } = usePlanAccess();
+    const { activeTool, onToolChange, canvasEditor } = useCanvas(); // Access editor-wide canvas state and tool selection
+    const { hasAccess, canExport, isFree } = usePlanAccess(); // Subscription & permission helpers
 
     const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false);
     const [restrictedTools, setRestrictedTools] = useState<ToolIdTypes | string | null>(null);
 
+    // Navigate back to the dashboard
     const handleBackToDashboard = () => {
         router.push('/dashboard');
     };
 
+    // Handle tool selection with plan restriction checks
     const handleToolChange = (toolId: ToolIdTypes) => {
         if (!hasAccess(toolId)) {
             setRestrictedTools(toolId);
             setShowUpgradeModal(true);
             return;
         }
-
         onToolChange(toolId);
     };
 
@@ -113,6 +118,7 @@ const EditorTopbar = ({ project }: { project: any }) => {
                     <div>Right Actions</div>
                 </div>
 
+                {/* TOOLS ROW */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         {TOOLS.map((tool: ToolsTypes) => {
@@ -141,6 +147,7 @@ const EditorTopbar = ({ project }: { project: any }) => {
                         })}
                     </div>
 
+                    {/* UNDO/REDO BUTTONS */}
                     <div className="flex items-center gap-1">
                         <Button variant="ghost" size="sm" className="text-white">
                             <RotateCcw className="h-4 w-4" />

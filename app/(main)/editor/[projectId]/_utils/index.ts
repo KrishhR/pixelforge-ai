@@ -40,3 +40,14 @@ export const getActiveImage = (canvasEditor: Canvas | null): FabricImage | null 
 
     return imgObj instanceof FabricImage ? imgObj : null;
 };
+
+/**
+ * Returns the source URL of a Fabric image.
+ *
+ * @param image - FabricImage instance or null
+ * @returns The image source URL if available, otherwise undefined
+ */
+export const getImageSrc = (image: FabricImage | null) => {
+    if (!image) return;
+    return image.getSrc();
+};

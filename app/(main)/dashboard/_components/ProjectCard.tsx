@@ -11,10 +11,13 @@ import { toast } from 'sonner';
 const ProjectCard = ({ project, onEdit }: { project: any; onEdit: () => void }) => {
     const { mutate: deleteProject, isLoading } = useConvexMutation(api.projects.deleteProject);
 
+    // Format the project's last update time into a human-readable relative string
+    // e.g. "3 minutes ago", "2 days ago"
     const lastUpdatedAt = formatDistanceToNow(new Date(project.updatedAt), {
         addSuffix: true,
     });
 
+    // Handles deletion of a project after user confirmation
     const handleDelete = async () => {
         const confirmed = confirm(
             `Are you sure you want to delete "${project.title}"? This action cannot be undone.`

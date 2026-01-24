@@ -10,6 +10,9 @@ import TextControls from './_tools/Text';
 import AiExtenderControls from './_tools/AiExtender';
 import AiEditingControls from './_tools/AiEditing';
 
+/**
+ *  Configuration shape for each tool
+ */
 type ToolsConfigTypes = {
     [key in ToolIdTypes]: {
         title: string;
@@ -17,6 +20,7 @@ type ToolsConfigTypes = {
         description: string;
     };
 };
+// Centralized metadata for Editing tools
 const TOOL_CONFIGS: ToolsConfigTypes = {
     resize: {
         title: 'Resize',
@@ -56,7 +60,7 @@ const TOOL_CONFIGS: ToolsConfigTypes = {
 };
 
 const EditorSidbar = ({ project }: { project: any }) => {
-    const { activeTool } = useCanvas();
+    const { activeTool } = useCanvas(); // Get the currently active tool from canvas context
 
     const toolConfig = TOOL_CONFIGS[activeTool];
 
@@ -70,6 +74,7 @@ const EditorSidbar = ({ project }: { project: any }) => {
 
     return (
         <div className="min-w-96 max-w-100 border-r flex flex-col">
+            {/* Tool header */}
             <div className="p-4 border-b">
                 <div className="flex items-center gap-3">
                     <Icon className="h-5 w-5 text-white" />
@@ -78,7 +83,7 @@ const EditorSidbar = ({ project }: { project: any }) => {
                 <p className="text-sm text-white mt-1">{toolDesc}</p>
             </div>
 
-            {/* Sidebar Content */}
+            {/* Tool-specific controls */}
             <div className="flex-1 p-4 overflow-y-scroll">
                 {renderToolContent({ activeTool, project })}
             </div>
@@ -86,6 +91,7 @@ const EditorSidbar = ({ project }: { project: any }) => {
     );
 };
 
+// Renders the appropriate sidebar UI based on the active tool
 const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; project: any }) => {
     switch (activeTool) {
         case 'resize':
@@ -102,7 +108,6 @@ const renderToolContent = ({ activeTool, project }: { activeTool: ToolIdTypes; p
             return <AiExtenderControls project={project} />;
         case 'ai_edit':
             return <AiEditingControls project={project} />;
-
         default:
             return <div className="text-white">Select a tool to get started</div>;
     }

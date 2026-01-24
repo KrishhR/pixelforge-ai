@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from './ui/alert';
 import { ToolIdTypes } from '@/hooks/usePlanAccess';
 import { PricingTable } from '@clerk/nextjs';
 import { Button } from './ui/button';
+import { shadcn } from '@clerk/themes';
 
 type UpgradeModalTypes = {
     isOpen: boolean;
@@ -62,6 +63,7 @@ const UpgradeModal = ({ isOpen, onClose, restrictedTool, reason }: UpgradeModalT
                                         zIndex: 20000,
                                     },
                                 },
+                                baseTheme: shadcn,
                             },
                         }}
                     />

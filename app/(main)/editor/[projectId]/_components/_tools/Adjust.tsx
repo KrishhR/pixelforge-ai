@@ -7,7 +7,9 @@ import { FabricImage, filters } from 'fabric';
 import { Loader2, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getActiveImage } from '../../_utils';
-
+/**
+ * Union of supported Fabric filter classes
+ */
 type AdjustFilterClassTypes =
     | typeof filters.Brightness
     | typeof filters.Contrast
@@ -16,6 +18,9 @@ type AdjustFilterClassTypes =
     | typeof filters.Blur
     | typeof filters.HueRotation;
 
+/**
+ * Configuration schema for each adjustable filter
+ */
 type AdjustFilterConfigTypes = {
     key: string;
     label: string;
@@ -29,7 +34,11 @@ type AdjustFilterConfigTypes = {
     suffix?: string;
 };
 
-// Filter configurations
+/**
+ * Centralized filter definitions
+ * UI sliders work in human-friendly ranges,
+ * then get transformed into Fabric's expected values
+ */
 const ADJUST_FILTER_CONFIG: AdjustFilterConfigTypes[] = [
     {
         key: 'brightness',
@@ -100,6 +109,7 @@ const ADJUST_FILTER_CONFIG: AdjustFilterConfigTypes[] = [
     },
 ];
 
+// Build default filter state dynamically from config
 const DEFAULT_VALUES: Record<string, number> = ADJUST_FILTER_CONFIG.reduce(
     (acc: Record<string, number>, config: AdjustFilterConfigTypes) => {
         acc[config.key] = config.defaultValue;
@@ -114,6 +124,7 @@ const AdjustControl = () => {
 
     const { canvasEditor } = useCanvas();
 
+    // Apply filters to the active image based on UI state
     const applyFilters = async (newValues: Record<string, number>) => {
         const imageObject = getActiveImage(canvasEditor);
         if (!imageObject || isApplying) return;
@@ -150,17 +161,21 @@ const AdjustControl = () => {
         }
     };
 
+    // Handle slider changes
     const handleValueChange = (filterKey: string, value: number[]) => {
         const newValues = { ...filterValues, [filterKey]: value[0] };
         setFilterValues(newValues);
         applyFilters(newValues);
     };
 
+    // Reset all filters back to defaults
     const resetFilters = () => {
         setFilterValues(DEFAULT_VALUES);
         applyFilters(DEFAULT_VALUES);
     };
 
+    // Extract UI slider values from an existing Fabric image
+    // Used when re-selecting an image or restoring canvas state
     const extractFilterValues = (imageObject: FabricImage) => {
         if (!imageObject?.filters?.length) return DEFAULT_VALUES;
 
@@ -184,6 +199,7 @@ const AdjustControl = () => {
         return extractedValues;
     };
 
+    // Sync UI state with currently active image
     useEffect(() => {
         const imageObject = getActiveImage(canvasEditor);
         if (imageObject?.filters) {

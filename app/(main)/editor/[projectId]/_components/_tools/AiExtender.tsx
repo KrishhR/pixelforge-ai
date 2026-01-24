@@ -9,8 +9,11 @@ import { FabricImage } from 'fabric';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { getMainImage } from '../../_utils';
+import { getImageSrc, getMainImage } from '../../_utils';
 
+/**
+ * Available extension directions
+ */
 const DIRECTIONS = [
     { key: 'top', label: 'Top', icon: ArrowUp },
     { key: 'bottom', label: 'Bottom', icon: ArrowDown },
@@ -19,6 +22,11 @@ const DIRECTIONS = [
 ];
 type Direction = (typeof DIRECTIONS)[number]['key'];
 
+/**
+ * ImageKit focus mapping
+ * Ensures the original image content stays visible
+ * while AI generates content in the extended area
+ */
 const FOCUS_MAP: Record<Direction, string> = {
     left: 'fo-right', // Original image stays on right when extending left
     right: 'fo-left', // Original image stays on left when extending right
@@ -29,16 +37,12 @@ const FOCUS_MAP: Record<Direction, string> = {
 const AiExtenderControls = ({ project }: { project: any }) => {
     const { canvasEditor, setProcessingMessage } = useCanvas();
 
-    const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
-    const [extensionAmount, setExtensionAmount] = useState(200);
-
+    const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null); // User-selected extension direction
+    const [extensionAmount, setExtensionAmount] = useState(200); // Number of pixels to extend in the chosen direction
+    // Convex mutation for saving canvas updates
     const { mutate: updateProject } = useConvexMutation(api.projects.updateProject);
 
-    const getImageSrc = (image: FabricImage | null) => {
-        if (!image) return;
-        return image.getSrc();
-    };
-
+    // Check if the image has background removal applied
     const hasBackgroundRemoval = () => {
         const imageSrc = getImageSrc(getMainImage(canvasEditor));
         return (
@@ -48,6 +52,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
         );
     };
 
+    // Calculate new image dimensions after extension
     const calculateDimensions = () => {
         const img = getMainImage(canvasEditor);
         if (!img || !selectedDirection) return { width: 0, height: 0 };
@@ -65,11 +70,13 @@ const AiExtenderControls = ({ project }: { project: any }) => {
         };
     };
 
+    // Toggle direction selection
     const handleSelectDirection = (direction: Direction) => {
         // Toggle Selection - if same direction is clicked, then deselects it
         setSelectedDirection((prev) => (prev === direction ? null : direction));
     };
 
+    // Build ImageKit URL with AI extension transformations
     const buildExtensionUrl = (imageUrl: string) => {
         if (!imageUrl || !selectedDirection) return;
 
@@ -89,6 +96,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
         return `${baseUrl}?tr=${transformations.join(',')}`;
     };
 
+    // Apply AI extension and replace the image on canvas
     const applyExtension = async () => {
         const mainImage = getMainImage(canvasEditor);
         if (!mainImage || !selectedDirection) return;
@@ -142,6 +150,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
         }
     };
 
+    // Canvas not ready
     if (!canvasEditor) {
         return (
             <div className="p-4">
@@ -150,6 +159,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
         );
     }
 
+    // Block extension for images with background removal
     if (hasBackgroundRemoval()) {
         return (
             <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/20">
@@ -165,12 +175,14 @@ const AiExtenderControls = ({ project }: { project: any }) => {
     const { width: newWidth, height: newHeight } = calculateDimensions();
     const currentImage = getMainImage(canvasEditor);
 
+    // No image on canvas
     if (!currentImage) {
         return <div className="p-4 text-white/70 text-sm">Please add an image first</div>;
     }
 
     return (
         <div className="space-y-6">
+            {/* Direction selection */}
             <div>
                 <h3 className="text-sm font-medium text-white mb-3">Select Extension Direction</h3>
                 <p className="text-xs text-white/70 mb-3">
@@ -193,7 +205,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
                     ))}
                 </div>
             </div>
-
+            {/* Extension amount slider */}
             <div>
                 <div className="flex items-center justify-between mb-2">
                     <label className="text-white text-sm">Extension Amount</label>
@@ -209,7 +221,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
                     disabled={!selectedDirection} // Disabled if no direction selected
                 />
             </div>
-
+            {/* Extension preview */}
             {selectedDirection && (
                 <div className="bg-slate-700/30 rounded-lg p-3">
                     <h4 className="text-sm font-medium text-white mb-2">Extension Preview</h4>
@@ -234,7 +246,7 @@ const AiExtenderControls = ({ project }: { project: any }) => {
                     </div>
                 </div>
             )}
-
+            {/* Apply extension */}
             <Button
                 onClick={applyExtension}
                 disabled={!selectedDirection}

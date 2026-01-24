@@ -1,4 +1,5 @@
 import FeatureSection from '@/components/FeatureSection';
+import Footer from '@/components/FooterSection';
 import HeroSection from '@/components/Hero';
 import Pricing from '@/components/PricingSection';
 import StatsSection from '@/components/StatsSection';
@@ -42,6 +43,7 @@ export default function Home() {
             </section>
 
             {/* footer */}
+            <Footer />
         </div>
     );
 }

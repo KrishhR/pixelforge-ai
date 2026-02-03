@@ -1,5 +1,5 @@
 import useIntersectionObserver from '@/hooks/useIntersectionObserver';
-import { SignedIn, SignedOut, useAuth } from '@clerk/nextjs';
+import { SignedIn, SignedOut, useAuth, useClerk } from '@clerk/nextjs';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { CheckoutButton } from '@clerk/nextjs/experimental';
@@ -22,13 +22,14 @@ const PricingCard = ({
     const { has } = useAuth();
 
     const isCurrentPlan = id ? has?.({ plan: id }) : false;
+    const clerk = useClerk();
 
     const handlePopup = () => {
         if (isCurrentPlan) return;
-
         try {
-            // TODO_1 => handle "Upgrade to pro" button must take to log in page when user is not logged in!
-            // => Need to implement in This function
+            clerk.openSignIn({
+                fallbackRedirectUrl: window.location.href,
+            });
         } catch (error) {
             console.error('Checkout Error', error);
             toast.error('Something went wrong' + error);

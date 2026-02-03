@@ -18,7 +18,7 @@ import { toast } from 'sonner';
  * - `error`: Error message if the query fails
  */
 export const useConvexQuery = <
-    TData = unknown,
+    TData = any,
     TArgs extends Record<string, any> | undefined = undefined,
 >(
     query: FunctionReference<'query'>,

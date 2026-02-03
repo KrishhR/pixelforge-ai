@@ -89,3 +89,41 @@ export const updateUserPlan = mutation({
         return user._id;
     },
 });
+
+export const updateUser = mutation({
+    args: {
+        updates: v.object({
+            name: v.optional(v.string()),
+            email: v.optional(v.string()),
+            imageUrl: v.optional(v.string()),
+            projectUsed: v.optional(v.number()),
+            exportsThisMonth: v.optional(v.number()),
+            lastActiveAt: v.optional(v.number()),
+        }),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error('Called updateUser without authentication present');
+        }
+
+        const user = await ctx.db
+            .query('users')
+            .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+            .unique();
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Always update lastActiveAt unless explicitly overridden
+        const updates = {
+            ...args.updates,
+            lastActiveAt: args.updates.lastActiveAt ?? Date.now(),
+        };
+
+        await ctx.db.patch(user._id, updates);
+
+        return user._id;
+    },
+});

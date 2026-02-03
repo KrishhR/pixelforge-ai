@@ -14,6 +14,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
     title: 'PixelForge AI',
     description: 'A smart AI image editor for creating and customizing photos with ease.',
+    icons: {
+        icon: '/pixelforge-ai.ico',
+    },
 };
 
 export default function RootLayout({

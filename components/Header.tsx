@@ -24,12 +24,13 @@ const Header = () => {
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-8 py-3 flex items-center justify-between gap-8">
                 <Link href="/" className="mr-10 md:mr-20 flex items-center gap-2">
                     <Image
-                        src={'/logo-text.png'}
+                        src={'/logo3.png'}
                         alt="Pixelforge AI"
-                        className="min-w-24 object-cover"
-                        width={96}
-                        height={24}
+                        className="min-w-24 md:min-w-28 lg:min-w-40 object-cover"
+                        width={160}
+                        height={32}
                         loading="eager"
+                        priority
                     />
                 </Link>
 

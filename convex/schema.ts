@@ -56,9 +56,12 @@ export default defineSchema({
 
     folders: defineTable({
         name: v.string(), // folder's name
+        nameLower: v.string(),
         userId: v.id('users'), // Owner
         createdAt: v.number(),
-    }).index('by_user', ['userId']), // User's folder
+    })
+        .index('by_user', ['userId']) // User's folder
+        .index('by_user_name', ['userId', 'nameLower']),
 });
 
 /**

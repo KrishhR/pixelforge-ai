@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import ProjectCard from './ProjectCard';
 
-const ProjectGrid = ({ projects }: { projects: any[] }) => {
+const ProjectGrid = ({ projects, folders }: { projects: any[]; folders: any[] }) => {
     const router = useRouter();
 
     const handleEditProject = (projectId: string) => {
@@ -17,6 +17,7 @@ const ProjectGrid = ({ projects }: { projects: any[] }) => {
                     key={project?._id}
                     project={project}
                     onEdit={() => handleEditProject(project._id)}
+                    folders={folders}
                 />
             ))}
         </div>

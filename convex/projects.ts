@@ -104,7 +104,7 @@ export const getProject = query({
     handler: async (ctx, args) => {
         const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
 
-        const project = await ctx.db.get(args.projectId);
+        const project: Doc<'projects'> | null = await ctx.db.get(args.projectId);
         if (!project) {
             throw new Error('Project does not exist.');
         }
@@ -120,6 +120,7 @@ export const getProject = query({
 export const updateProject = mutation({
     args: {
         projectId: v.id('projects'),
+        title: v.optional(v.string()),
         canvasState: v.optional(v.any()),
         width: v.optional(v.number()),
         height: v.optional(v.number()),
@@ -127,38 +128,84 @@ export const updateProject = mutation({
         thumbnailUrl: v.optional(v.string()),
         activeTransformations: v.optional(v.string()),
         isBackgroundRemoved: v.optional(v.boolean()),
+        folderId: v.optional(v.id('folders')),
     },
     handler: async (ctx, args) => {
         const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
+        if (!user) throw new Error('User not found');
 
-        const project = await ctx.db.get(args.projectId);
-        if (!project) {
-            throw new Error('Project does not exist.');
+        const project: Doc<'projects'> | null = await ctx.db.get(args.projectId);
+        if (!project || project.userId !== user._id) {
+            throw new Error('Project not found or access denied');
         }
 
-        const updatedData: { [key: string]: any } = {
+        const updatedData: Record<string, any> = {
             updatedAt: Date.now(),
         };
 
-        if (args.canvasState !== undefined) updatedData['canvasState'] = args.canvasState;
+        for (const key of [
+            'title',
+            'canvasState',
+            'width',
+            'height',
+            'currentImageUrl',
+            'thumbnailUrl',
+            'activeTransformations',
+            'isBackgroundRemoved',
+        ]) {
+            if (args[key as keyof typeof args] !== undefined) {
+                updatedData[key] = args[key as keyof typeof args];
+            }
+        }
 
-        if (args.width !== undefined) updatedData['width'] = args.width;
+        if (args.folderId !== undefined) {
+            const folder: Doc<'folders'> | null = await ctx.db.get(args.folderId);
 
-        if (args.height !== undefined) updatedData['height'] = args.height;
+            if (!folder || folder.userId !== user._id) {
+                throw new Error('Folder not found or access denied');
+            }
 
-        if (args.currentImageUrl !== undefined)
-            updatedData['currentImageUrl'] = args.currentImageUrl;
-
-        if (args.thumbnailUrl !== undefined) updatedData['thumbnailUrl'] = args.thumbnailUrl;
-
-        if (args.activeTransformations !== undefined)
-            updatedData['activeTransformations'] = args.activeTransformations;
-
-        if (args.isBackgroundRemoved !== undefined)
-            updatedData['isBackgroundRemoved'] = args.isBackgroundRemoved;
+            updatedData['folderId'] = args.folderId;
+        }
 
         await ctx.db.patch(args.projectId, updatedData);
-
         return args.projectId;
+    },
+});
+
+export const removeProjectFromFolder = mutation({
+    args: {
+        projectId: v.id('projects'),
+    },
+    handler: async (ctx, { projectId }) => {
+        const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
+        if (!user) throw new Error('User not found');
+
+        const project: Doc<'projects'> | null = await ctx.db.get(projectId);
+        if (!project || project.userId !== user._id) {
+            throw new Error('Project not found or access denied');
+        }
+        await ctx.db.patch(projectId, { folderId: undefined, updatedAt: Date.now() });
+    },
+});
+
+export const getProjectsInFolder = query({
+    args: {
+        folderId: v.id('folders'),
+    },
+    handler: async (ctx, args) => {
+        const user: Doc<'users'> | null = await ctx.runQuery(api.users.getCurrentUser);
+        if (!user) throw new Error('User not found');
+
+        const folder: Doc<'folders'> | null = await ctx.db.get(args.folderId);
+        if (!folder || folder.userId !== user._id) {
+            throw new Error('Folder not found or access denied');
+        }
+        const projects: Doc<'projects'>[] | null = await ctx.db
+            .query('projects')
+            .withIndex('by_folder', (q) => q.eq('folderId', args.folderId))
+            .order('desc')
+            .collect();
+        return projects;
     },
 });

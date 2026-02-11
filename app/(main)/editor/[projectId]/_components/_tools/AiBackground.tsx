@@ -1,9 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCanvas } from '@/context/context';
-import { TabsTrigger } from '@radix-ui/react-tabs';
 import { FabricImage } from 'fabric';
 import { Download, ImageIcon, Loader2, Palette, Search, Trash, Trash2 } from 'lucide-react';
 import { useState } from 'react';
